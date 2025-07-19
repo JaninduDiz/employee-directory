@@ -1,19 +1,53 @@
-const tintColorLight = '#2f95dc';
-const tintColorDark = '#fff';
+const primaryColor = "#eae4d5";
+const secondaryColor = "#7dc6b8";
+const accentColor = "#000000";
 
-export default {
-  light: {
-    text: '#000',
-    background: '#fff',
-    tint: tintColorLight,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorLight,
-  },
-  dark: {
-    text: '#fff',
-    background: '#000',
-    tint: tintColorDark,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorDark,
-  },
+// Light theme colors
+const lightColors = {
+  primary: primaryColor,
+  secondary: secondaryColor,
+  accent: accentColor,
+  text: accentColor,
+  textSecondary: "#666666",
+  textTertiary: "#999999",
+  background: "#f2f2f2",
+  surface: primaryColor,
+  surfaceSecondary: "#f5f5f5",
+  border: "#e0e0e0",
+  success: "#4CAF50",
+  warning: "#FF9800",
+  error: "#F44336",
+  tint: secondaryColor,
+  tabIconDefault: "#999999",
+  tabIconSelected: secondaryColor,
 };
+
+// Dark theme colors
+const darkColors = {
+  primary: "#2c2a24",
+  secondary: secondaryColor,
+  accent: "#ffffff",
+  text: "#ffffff",
+  textSecondary: "#cccccc",
+  textTertiary: "#999999",
+  background: "#121212",
+  surface: "#1e1e1e",
+  surfaceSecondary: "#2c2c2c",
+  border: "#333333",
+  success: "#4CAF50",
+  warning: "#FF9800",
+  error: "#F44336",
+  tint: secondaryColor,
+  tabIconDefault: "#666666",
+  tabIconSelected: secondaryColor,
+};
+
+export const Colors = {
+  light: lightColors,
+  dark: darkColors,
+};
+
+export type ColorScheme = keyof typeof Colors;
+export type ThemeColors = typeof lightColors;
+
+export default Colors;
