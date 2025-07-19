@@ -1,24 +1,22 @@
-import { Button, StyleSheet, TextInput } from "react-native";
-import React from "react";
-import { Text, View } from "@/components/Themed";
-import { Link } from "expo-router";
+import { useEffect } from "react";
+import { Redirect } from "expo-router";
+import { View, ActivityIndicator } from "react-native";
+import { useAuthStore } from "@/store/useAuthStore";
 
-export default function LoginScreen() {
-  return (
-    <View style={styles.container}>
-      <TextInput
-        placeholder="Enter your PIN"
-        style={{ borderWidth: 1, padding: 10, margin: 10, width: "80%" }}
-      />
-      <Link href="/(main)">Login</Link>
-    </View>
-  );
+export default function Index() {
+  const { isAuthenticated, isLoading } = useAuthStore();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Redirect href="/(main)" />;
+  }
+
+  return <Redirect href="/(auth)" />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
