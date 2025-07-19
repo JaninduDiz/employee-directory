@@ -1,40 +1,51 @@
-import { useColorScheme } from "@/components/useColorScheme";
-import { FontAwesome } from "@expo/vector-icons";
-import { Link, Stack } from "expo-router";
-import { Pressable } from "react-native";
-import Colors from "@/constants/Colors";
-import AntDesign from "@expo/vector-icons/AntDesign";
+import React from "react";
+import { Stack } from "expo-router";
+import { TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useAuthStore } from "@/store/useAuthStore";
+import { router } from "expo-router";
 
 export default function MainLayout() {
-  const colorScheme = useColorScheme();
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/(auth)");
+  };
+
   return (
     <Stack>
       <Stack.Screen
         name="index"
         options={{
-          title: "Main",
-
+          title: "Employee Directory",
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#FFFFFF",
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
           headerRight: () => (
-            <Link href="/add-employee" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <AntDesign
-                    name="logout"
-                    size={20}
-                    color={Colors[colorScheme ?? "light"].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
+            <TouchableOpacity
+              onPress={handleLogout}
+              style={{ marginRight: 16 }}
+            >
+              <Ionicons name="log-out-outline" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
           ),
         }}
       />
-
-      {/* 👇 Modal screen */}
       <Stack.Screen
         name="add-employee"
-        options={{ presentation: "modal", title: "Modal" }}
+        options={{
+          presentation: "modal",
+          title: "Add Employee",
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#FFFFFF",
+        }}
       />
     </Stack>
   );
