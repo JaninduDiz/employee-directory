@@ -4,9 +4,11 @@ import { TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/store/useAuthStore";
 import { router } from "expo-router";
+import { useThemeColors } from "@/hooks/useTheme";
 
 export default function MainLayout() {
   const logout = useAuthStore((state) => state.logout);
+  const colors = useThemeColors();
 
   const handleLogout = async () => {
     await logout();
@@ -20,9 +22,9 @@ export default function MainLayout() {
         options={{
           title: "Employee Directory",
           headerStyle: {
-            backgroundColor: "#007AFF",
+            backgroundColor: colors.secondary,
           },
-          headerTintColor: "#FFFFFF",
+          headerTintColor: colors.accent,
           headerTitleStyle: {
             fontWeight: "bold",
           },
@@ -31,7 +33,11 @@ export default function MainLayout() {
               onPress={handleLogout}
               style={{ marginRight: 16 }}
             >
-              <Ionicons name="log-out-outline" size={24} color="#FFFFFF" />
+              <Ionicons
+                name="log-out-outline"
+                size={24}
+                color={colors.accent}
+              />
             </TouchableOpacity>
           ),
         }}
@@ -42,9 +48,10 @@ export default function MainLayout() {
           presentation: "modal",
           title: "Add Employee",
           headerStyle: {
-            backgroundColor: "#007AFF",
+            backgroundColor: colors.secondary,
           },
-          headerTintColor: "#FFFFFF",
+          headerTintColor:
+            colors.accent === "#000000" ? "#ffffff" : colors.accent,
         }}
       />
     </Stack>
