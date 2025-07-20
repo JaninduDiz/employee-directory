@@ -13,35 +13,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useThemeColors } from "@/hooks/useTheme";
 import EmployeeCard from "@/components/EmployeeCard";
-import { fetchRandomQuote } from "@/services/api";
-import { loadQuote, saveQuote } from "@/storage/quoteStorage";
-import { Quote } from "@/types";
 import QuoteCard from "@/components/QuoteCard";
 
 export default function MainScreen() {
   const { isAuthenticated } = useAuthStore();
-  const [quote, setQuote] = useState<Quote | null>(null);
-  const [loading, setLoading] = useState(true);
 
   const colors = useThemeColors();
   const styles = createStyles(colors);
-
-  // useEffect(() => {
-  //   async function getAndStoreQuote() {
-  //     try {
-  //       const fetchedQuote = await fetchRandomQuote();
-  //       setQuote(fetchedQuote);
-  //       await saveQuote(fetchedQuote);
-  //     } catch (e) {
-  //       // fallback to old quote if fetch fails
-  //       const storedQuote = await loadQuote();
-  //       setQuote(storedQuote);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
-  //   getAndStoreQuote();
-  // }, []);
 
   if (!isAuthenticated) {
     return <Redirect href="/(auth)" />;
@@ -83,7 +61,7 @@ export default function MainScreen() {
           </View>
         </View>
 
-        <QuoteCard quote={quote} loading={loading} />
+        <QuoteCard />
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>New Employees (Latest 10)</Text>
