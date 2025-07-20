@@ -67,7 +67,7 @@ const QuoteCard = forwardRef<any, QuoteDisplayProps>(
     return (
       <React.Fragment>
         <View style={styles.quoteContainer}>
-          {!error ? (
+          {error ? (
             <View style={styles.errorContainer}>
               <Text style={styles.errorText}>Unable to load quote!</Text>
               <TouchableOpacity style={styles.retryButton} onPress={loadQuote}>
@@ -116,7 +116,7 @@ const createStyles = (colors: any) =>
     },
     quoteHeaderText: {
       fontSize: 15,
-      fontWeight: "bold",
+      fontWeight: "500",
       color: colors.text,
       marginBottom: 8,
     },
@@ -127,7 +127,7 @@ const createStyles = (colors: any) =>
     },
     authorText: {
       textAlign: "right",
-      fontSize: 14,
+      fontSize: 13,
       color: colors.text,
       fontStyle: "italic",
       fontWeight: "500",

@@ -13,12 +13,10 @@ class QuoteApiService {
   static async getQuote(): Promise<Quote> {
     try {
       const isFresh = await this.isCacheFresh();
-      console.log("💾 Cache is fresh:", isFresh);
 
       if (isFresh) {
         const cachedQuote = await this.getCachedQuote();
         if (cachedQuote) {
-          console.log("✅ Returning fresh cached quote");
           return cachedQuote;
         }
       }
