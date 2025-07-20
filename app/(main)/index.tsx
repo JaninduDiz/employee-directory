@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -6,20 +6,23 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
-  TextInput,
+  RefreshControl,
 } from "react-native";
 import { Redirect, router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useThemeColors } from "@/hooks/useTheme";
 import EmployeeCard from "@/components/EmployeeCard";
 import QuoteCard from "@/components/QuoteCard";
+import SearchBox from "@/components/SearchBox";
 
 export default function MainScreen() {
   const { isAuthenticated } = useAuthStore();
 
   const colors = useThemeColors();
   const styles = createStyles(colors);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const quoteCardRef = useRef<any>(null);
 
   if (!isAuthenticated) {
     return <Redirect href="/(auth)" />;
@@ -29,39 +32,44 @@ export default function MainScreen() {
     router.push("/(main)/add-employee");
   };
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+
+    try {
+      console.log("Starting refresh...");
+
+      if (quoteCardRef.current?.refreshQuote) {
+        await quoteCardRef.current.refreshQuote();
+      }
+
+      // await refreshOtherData();
+
+      console.log("Refresh completed!");
+    } catch (error) {
+      console.error("Refresh error:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.content}>
-        <View style={{ marginTop: 16, marginBottom: 8 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              backgroundColor: colors.surface,
-              borderRadius: 8,
-              paddingHorizontal: 12,
-              paddingVertical: 18,
-            }}
-          >
-            <Ionicons
-              name="search"
-              size={20}
-              color={colors.textSecondary}
-              style={{ marginRight: 8 }}
-            />
-            <Text
-              style={{
-                flex: 1,
-                color: colors.textSecondary,
-                fontSize: 16,
-              }}
-            >
-              Search employees...
-            </Text>
-          </View>
-        </View>
+      <ScrollView
+        style={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+            title="Pull to refresh"
+            titleColor={colors.text}
+          />
+        }
+      >
+        <SearchBox />
 
-        <QuoteCard />
+        <QuoteCard ref={quoteCardRef} externalRefreshing={refreshing} />
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>New Employees (Latest 10)</Text>
@@ -86,23 +94,6 @@ const createStyles = (colors: any) =>
     content: {
       flex: 1,
       paddingHorizontal: 16,
-    },
-    welcomeSection: {
-      backgroundColor: colors.secondary,
-      padding: 20,
-      borderRadius: 12,
-      marginTop: 16,
-      marginBottom: 16,
-    },
-    welcomeText: {
-      fontSize: 14,
-      fontWeight: "bold",
-      color: colors.text,
-      marginBottom: 4,
-    },
-    userText: {
-      fontSize: 16,
-      color: colors.textSecondary,
     },
     section: {
       marginBottom: 24,
