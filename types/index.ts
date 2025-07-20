@@ -1,12 +1,20 @@
-export type Quote = {
+export interface Quote {
   quote: string;
   author: string;
-};
+}
 
-export type Employee = {
+export interface Employee {
   id: string;
   name: string;
+  age: number;
+  dateOfBirth: string;
+  employeeId: string;
+  createdAt: string;
+}
+
+export interface EmployeeFormData {
+  name: string;
   age: string;
-  dob: string;
-  emp_id: string;
-};
+  dateOfBirth: string;
+  employeeId: string;
+}
