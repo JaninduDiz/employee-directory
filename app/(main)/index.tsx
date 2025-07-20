@@ -26,6 +26,23 @@ export default function MainScreen() {
   const colors = useThemeColors();
   const styles = createStyles(colors);
 
+  // useEffect(() => {
+  //   async function getAndStoreQuote() {
+  //     try {
+  //       const fetchedQuote = await fetchRandomQuote();
+  //       setQuote(fetchedQuote);
+  //       await saveQuote(fetchedQuote);
+  //     } catch (e) {
+  //       // fallback to old quote if fetch fails
+  //       const storedQuote = await loadQuote();
+  //       setQuote(storedQuote);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+  //   getAndStoreQuote();
+  // }, []);
+
   if (!isAuthenticated) {
     return <Redirect href="/(auth)" />;
   }
@@ -68,8 +85,16 @@ export default function MainScreen() {
 
         <QuoteCard quote={quote} loading={loading} />
 
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>New Employees (Latest 10)</Text>
+        </View>
+
         <EmployeeCard />
       </ScrollView>
+
+      <TouchableOpacity style={styles.fab} onPress={openModal}>
+        <Text style={styles.fabText}>Add New Employee</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -84,7 +109,46 @@ const createStyles = (colors: any) =>
       flex: 1,
       paddingHorizontal: 16,
     },
+    welcomeSection: {
+      backgroundColor: colors.secondary,
+      padding: 20,
+      borderRadius: 12,
+      marginTop: 16,
+      marginBottom: 16,
+    },
+    welcomeText: {
+      fontSize: 14,
+      fontWeight: "bold",
+      color: colors.text,
+      marginBottom: 4,
+    },
+    userText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+    },
     section: {
       marginBottom: 24,
+    },
+    sectionTitle: {
+      fontSize: 15,
+      fontWeight: "bold",
+      color: colors.text,
+      marginTop: 12,
+    },
+    fab: {
+      position: "absolute",
+      bottom: 30,
+      width: "90%",
+      height: 60,
+      borderRadius: 12,
+      backgroundColor: colors.accent,
+      justifyContent: "center",
+      alignItems: "center",
+      alignSelf: "center",
+    },
+    fabText: {
+      color: colors.accent === "#000000" ? "#ffffff" : colors.primary,
+      fontSize: 14,
+      fontWeight: "bold",
     },
   });

@@ -18,8 +18,6 @@ const lightColors = {
   warning: "#FF9800",
   error: "#F44336",
   tint: secondaryColor,
-  tabIconDefault: "#999999",
-  tabIconSelected: secondaryColor,
 };
 
 // Dark theme colors
@@ -38,8 +36,6 @@ const darkColors = {
   warning: "#FF9800",
   error: "#F44336",
   tint: secondaryColor,
-  tabIconDefault: "#666666",
-  tabIconSelected: secondaryColor,
 };
 
 export const Colors = {
