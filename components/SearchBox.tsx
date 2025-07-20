@@ -7,7 +7,7 @@ const SearchBox = () => {
   const colors = useThemeColors();
   const styles = createStyles(colors);
   return (
-    <View style={{ marginTop: 16, marginBottom: 8 }}>
+    <View style={{ marginTop: 16, marginBottom: 8, paddingHorizontal: 16 }}>
       <View
         style={{
           flexDirection: "row",
