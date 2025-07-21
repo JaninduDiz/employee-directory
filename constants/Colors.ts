@@ -17,6 +17,8 @@ const lightColors = {
   success: "#4CAF50",
   warning: "#FF9800",
   error: "#F44336",
+  errorBackground: "#FFEBEE",
+  cardBackground: "#ffffff",
   tint: secondaryColor,
 };
 
@@ -35,6 +37,8 @@ const darkColors = {
   success: "#4CAF50",
   warning: "#FF9800",
   error: "#F44336",
+  errorBackground: "#4A1A1A",
+  cardBackground: "#2c2c2c",
   tint: secondaryColor,
 };
 

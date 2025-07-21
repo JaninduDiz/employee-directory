@@ -10,9 +10,10 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useThemeColors } from "../hooks/useTheme";
 import { formatDisplayDate } from "../utils/validation";
+import { Ionicons } from "@expo/vector-icons";
 
 interface DatePickerProps {
-  value?: string; // Date string in YYYY-MM-DD format
+  value?: string;
   onDateChange: (dateString: string) => void;
   placeholder?: string;
   label?: string;
@@ -38,7 +39,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       return new Date(value);
     }
     const defaultDate = new Date();
-    defaultDate.setFullYear(defaultDate.getFullYear() - 25); // Default to 25 years ago
+    defaultDate.setFullYear(defaultDate.getFullYear() - 25);
     return defaultDate;
   });
 
@@ -92,6 +93,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         <Text style={[styles.dateInputText, !value && styles.placeholderText]}>
           {value ? formatDisplayDate(value) : placeholder}
         </Text>
+        <Ionicons name="calendar" size={24} color={colors.textSecondary} />
       </TouchableOpacity>
 
       {helperText && !errorText && (
@@ -120,16 +122,18 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                   </Text>
                 </TouchableOpacity>
               </View>
-              <DateTimePicker
-                value={date}
-                mode="date"
-                display="spinner"
-                maximumDate={new Date()}
-                minimumDate={new Date(1959, 0, 1)}
-                onChange={(event, selectedDate) =>
-                  setDate(selectedDate || date)
-                }
-              />
+              <View style={styles.datePickerContainer}>
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display="spinner"
+                  maximumDate={new Date()}
+                  minimumDate={new Date(1959, 0, 1)}
+                  onChange={(event, selectedDate) =>
+                    setDate(selectedDate || date)
+                  }
+                />
+              </View>
             </View>
           </View>
         </Modal>
@@ -166,9 +170,11 @@ const createStyles = (colors: any) =>
       borderColor: colors.border,
       borderRadius: 12,
       padding: 16,
-      backgroundColor: colors.cardBackground,
+      backgroundColor: colors.background,
       minHeight: 52,
-      justifyContent: "center",
+      justifyContent: "space-between",
+      flexDirection: "row",
+      alignItems: "center",
     },
     inputError: {
       borderColor: colors.error,
@@ -182,7 +188,7 @@ const createStyles = (colors: any) =>
       color: colors.textSecondary,
     },
     helperText: {
-      fontSize: 14,
+      fontSize: 13,
       color: colors.textSecondary,
       marginTop: 4,
       fontStyle: "italic",
@@ -202,7 +208,7 @@ const createStyles = (colors: any) =>
       backgroundColor: colors.cardBackground,
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
-      paddingBottom: 34, // Safe area for iOS
+      paddingBottom: 34,
     },
     modalHeader: {
       flexDirection: "row",
@@ -225,6 +231,9 @@ const createStyles = (colors: any) =>
       fontSize: 18,
       fontWeight: "600",
       color: colors.text,
+    },
+    datePickerContainer: {
+      alignItems: "center",
     },
   });
 

@@ -14,14 +14,13 @@ import {
 import { router } from "expo-router";
 import { useThemeColors } from "../../hooks/useTheme";
 import { useEmployeeStore } from "../../store/employeeStore";
-import { NewEmployee } from "../../types";
 import DatePicker from "../../components/DatePicker";
 import {
   EmployeeFormData,
   ValidationError,
   validateEmployeeForm,
   calculateAge,
-  generateEmployeeId,
+  formDataToNewEmployee,
 } from "../../utils/validation";
 
 export default function AddEmployee() {
@@ -84,12 +83,7 @@ export default function AddEmployee() {
     setIsLoading(true);
 
     try {
-      const newEmployee: NewEmployee = {
-        name: formData.name.trim(),
-        age: Number(formData.age),
-        dateOfBirth: formData.dateOfBirth.trim(),
-        employeeId: formData.employeeId.trim() || generateEmployeeId(),
-      };
+      const newEmployee = formDataToNewEmployee(formData);
 
       await addEmployee(newEmployee);
 
@@ -111,12 +105,17 @@ export default function AddEmployee() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <SafeAreaView style={styles.container}>
-        <ScrollView style={styles.content}>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+      >
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.header}>
             <Text style={styles.title}>Add New Employee</Text>
             <Text style={styles.subtitle}>
@@ -168,7 +167,7 @@ export default function AddEmployee() {
                 editable={false}
               />
               <Text style={styles.helperText}>
-                Age is automatically calculated from date of birth
+                Age is calculated from date of birth
               </Text>
               {getFieldError("age") && (
                 <Text style={styles.errorText}>{getFieldError("age")}</Text>
@@ -181,13 +180,10 @@ export default function AddEmployee() {
                 style={styles.input}
                 value={formData.employeeId}
                 onChangeText={(value) => handleInputChange("employeeId", value)}
-                placeholder="Auto-generated if left empty"
+                placeholder="Leave empty to auto-generate"
                 placeholderTextColor={colors.textSecondary}
                 autoCapitalize="characters"
               />
-              <Text style={styles.helperText}>
-                Leave empty to auto-generate
-              </Text>
             </View>
           </View>
         </ScrollView>
@@ -215,8 +211,8 @@ export default function AddEmployee() {
             </Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -226,9 +222,15 @@ const createStyles = (colors: any) =>
       flex: 1,
       backgroundColor: colors.background,
     },
+    keyboardContainer: {
+      flex: 1,
+    },
     content: {
       flex: 1,
+    },
+    contentContainer: {
       padding: 20,
+      paddingBottom: 100,
     },
     header: {
       marginBottom: 32,
@@ -281,11 +283,10 @@ const createStyles = (colors: any) =>
       backgroundColor: colors.errorBackground,
     },
     disabledInput: {
-      backgroundColor: colors.cardBackground,
       color: colors.textSecondary,
     },
     helperText: {
-      fontSize: 14,
+      fontSize: 13,
       color: colors.textSecondary,
       marginTop: 4,
       fontStyle: "italic",
@@ -297,13 +298,25 @@ const createStyles = (colors: any) =>
       fontWeight: "500",
     },
     buttonContainer: {
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
       flexDirection: "row",
       padding: 20,
-      paddingTop: 16,
+      paddingBottom: 4, // Safe area for iOS
       gap: 16,
       backgroundColor: colors.background,
       borderTopWidth: 1,
       borderTopColor: colors.border,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: -2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 3.84,
+      elevation: 5,
     },
     button: {
       flex: 1,
