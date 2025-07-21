@@ -1,5 +1,9 @@
-// components/EmployeeList.tsx
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import {
   View,
   Text,
@@ -10,13 +14,16 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Employee } from "@/types";
-
 import EmployeeDetailModal from "./EmployeeDetailModal";
 import { useThemeColors } from "@/hooks/useTheme";
 import EmployeeItem from "./EmployeeItem";
 import { useEmployeeStore } from "@/store/employeeStore";
 
-const EmployeeList = () => {
+export interface EmployeeListRef {
+  refreshEmployees: () => Promise<void>;
+}
+
+const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
   const colors = useThemeColors();
   const styles = createStyles(colors);
 
@@ -40,7 +47,6 @@ const EmployeeList = () => {
     const initializeData = async () => {
       try {
         await initializeEmployees();
-
         await getLatestEmployees(10);
       } catch (error) {
         console.error("Failed to initialize employees:", error);
@@ -50,9 +56,20 @@ const EmployeeList = () => {
     initializeData();
   }, [initializeEmployees, getLatestEmployees]);
 
-  //   useEffect(() => {
-  //   clearEmployees();
-  // }, [clearEmployees]);
+  useImperativeHandle(
+    ref,
+    () => ({
+      refreshEmployees: async () => {
+        try {
+          await initializeEmployees();
+          await getLatestEmployees(latestEmployees?.length || 10);
+        } catch (error) {
+          console.error("Failed to refresh employees:", error);
+        }
+      },
+    }),
+    [initializeEmployees, getLatestEmployees, latestEmployees]
+  );
 
   const handleEmployeePress = (employee: Employee) => {
     setSelectedEmployee(employee);
@@ -109,7 +126,7 @@ const EmployeeList = () => {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={colors.accent} />
         <Text style={styles.loadingText}>Loading employees...</Text>
       </View>
     );
@@ -145,7 +162,7 @@ const EmployeeList = () => {
         style={styles.list}
       />
 
-      {/* {selectedEmployee && (
+      {selectedEmployee && (
         <EmployeeDetailModal
           visible={isDetailModalVisible}
           employee={selectedEmployee}
@@ -155,10 +172,10 @@ const EmployeeList = () => {
             handleCloseDetailModal();
           }}
         />
-      )} */}
+      )}
     </View>
   );
-};
+});
 
 const createStyles = (colors: any) =>
   StyleSheet.create({

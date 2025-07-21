@@ -24,6 +24,7 @@ export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
   initializeEmployees: async () => {
     set({ isLoading: true, error: null });
     try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       await EmployeeService.initializeEmployees();
       set({ isLoading: false });
     } catch (error) {

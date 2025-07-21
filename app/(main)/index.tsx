@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 import { Redirect, router } from "expo-router";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useThemeColors } from "@/hooks/useTheme";
-import EmployeeCard from "@/components/EmployeeCard";
+import EmployeeList, { EmployeeListRef } from "@/components/EmployeeList";
 import QuoteCard from "@/components/QuoteCard";
 import SearchBox from "@/components/SearchBox";
 
@@ -23,6 +23,7 @@ export default function MainScreen() {
 
   const [refreshing, setRefreshing] = useState(false);
   const quoteCardRef = useRef<any>(null);
+  const employeeListRef = useRef<EmployeeListRef>(null);
 
   if (!isAuthenticated) {
     return <Redirect href="/(auth)" />;
@@ -42,7 +43,9 @@ export default function MainScreen() {
         await quoteCardRef.current.refreshQuote();
       }
 
-      // await refreshOtherData();
+      if (employeeListRef.current?.refreshEmployees) {
+        await employeeListRef.current.refreshEmployees();
+      }
 
       console.log("Refresh completed!");
     } catch (error) {
@@ -54,28 +57,28 @@ export default function MainScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <SearchBox />
+
       <ScrollView
         style={styles.content}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
+            colors={[colors.accent]}
+            tintColor={colors.accent}
             title="Pull to refresh"
             titleColor={colors.text}
           />
         }
       >
-        <SearchBox />
-
         <QuoteCard ref={quoteCardRef} externalRefreshing={refreshing} />
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>New Employees (Latest 10)</Text>
         </View>
 
-        <EmployeeCard />
+        <EmployeeList ref={employeeListRef} />
       </ScrollView>
 
       <TouchableOpacity style={styles.fab} onPress={openModal}>
