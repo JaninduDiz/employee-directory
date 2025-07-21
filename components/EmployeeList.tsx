@@ -13,6 +13,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { Employee } from "@/types";
 import EmployeeDetailModal from "./EmployeeDetailModal";
 import { useThemeColors } from "@/hooks/useTheme";
@@ -30,8 +31,11 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
 
   const {
     latestEmployees,
+    searchResults,
     isLoading,
+    isSearching,
     error,
+    searchQuery,
     initializeEmployees,
     deleteEmployee,
     clearError,
@@ -43,6 +47,9 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
     null
   );
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+
+  const displayEmployees = searchQuery.trim() ? searchResults : latestEmployees;
+  const isShowingSearchResults = searchQuery.trim().length > 0;
 
   useEffect(() => {
     const initializeData = async () => {
@@ -127,16 +134,47 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
     />
   );
 
-  const renderEmptyState = () => (
-    <View style={styles.emptyState}>
-      <Text style={styles.emptyStateText}>No employees found</Text>
-      <Text style={styles.emptyStateSubtext}>
-        Add some employees to get started
-      </Text>
+  const renderEmptyState = () => {
+    if (isShowingSearchResults) {
+      return (
+        <View style={styles.emptyState}>
+          <Ionicons
+            name="search-outline"
+            size={48}
+            color={colors.textSecondary}
+            style={styles.emptyIcon}
+          />
+          <Text style={styles.emptyStateText}>No employees found</Text>
+          <Text style={styles.emptyStateSubtext}>
+            No employees match "{searchQuery}". Try a different search term.
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.emptyState}>
+        <Ionicons
+          name="people-outline"
+          size={48}
+          color={colors.textSecondary}
+          style={styles.emptyIcon}
+        />
+        <Text style={styles.emptyStateText}>No employees found</Text>
+        <Text style={styles.emptyStateSubtext}>
+          Add some employees to get started
+        </Text>
+      </View>
+    );
+  };
+
+  const renderSearchingState = () => (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color={colors.accent} />
+      <Text style={styles.loadingText}>Searching employees...</Text>
     </View>
   );
 
-  // Handle loading state
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -146,7 +184,10 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
     );
   }
 
-  // Handle error state
+  if (isSearching) {
+    return renderSearchingState();
+  }
+
   if (error) {
     return (
       <View style={styles.errorContainer}>
@@ -167,8 +208,17 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
 
   return (
     <View style={styles.container}>
+      {isShowingSearchResults && (
+        <View style={styles.searchHeader}>
+          <Text style={styles.searchResultsText}>
+            {searchResults.length} result{searchResults.length !== 1 ? "s" : ""}{" "}
+            for "{searchQuery}"
+          </Text>
+        </View>
+      )}
+
       <FlatList
-        data={latestEmployees}
+        data={displayEmployees}
         renderItem={renderEmployeeItem}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={renderEmptyState}
@@ -217,6 +267,9 @@ const createStyles = (colors: any) =>
       padding: 40,
       alignItems: "center",
     },
+    emptyIcon: {
+      marginBottom: 16,
+    },
     emptyStateText: {
       fontSize: 18,
       fontWeight: "600",
@@ -227,6 +280,18 @@ const createStyles = (colors: any) =>
       fontSize: 14,
       color: colors.textSecondary,
       textAlign: "center",
+    },
+    searchHeader: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    searchResultsText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      fontWeight: "500",
     },
     loadingContainer: {
       flex: 1,

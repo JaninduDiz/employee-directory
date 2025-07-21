@@ -15,6 +15,12 @@ const SearchBox: React.FC<SearchBoxProps> = ({ onSearchChange }) => {
   const [localQuery, setLocalQuery] = useState(searchQuery || "");
 
   useEffect(() => {
+    if (searchQuery !== localQuery) {
+      setLocalQuery(searchQuery || "");
+    }
+  }, [searchQuery]);
+
+  useEffect(() => {
     const debounceTimer = setTimeout(() => {
       if (localQuery.trim() !== searchQuery) {
         if (localQuery.trim()) {
