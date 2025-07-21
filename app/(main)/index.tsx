@@ -28,10 +28,6 @@ export default function MainScreen() {
   const quoteCardRef = useRef<any>(null);
   const employeeListRef = useRef<EmployeeListRef>(null);
 
-  if (!isAuthenticated) {
-    return <Redirect href="/(auth)" />;
-  }
-
   const handleSearchChange = (query: string) => {
     setIsSearching(query.trim().length > 0);
   };
@@ -67,6 +63,11 @@ export default function MainScreen() {
       setRefreshing(false);
     }
   }, [searchQuery, clearSearch]);
+
+  // Check authentication after all hooks are called
+  if (!isAuthenticated) {
+    return <Redirect href="/(auth)" />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>

@@ -3,13 +3,14 @@ import React, {
   useState,
   forwardRef,
   useImperativeHandle,
+  useMemo,
 } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  FlatList,
+  SectionList,
   Alert,
   ActivityIndicator,
 } from "react-native";
@@ -50,6 +51,39 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
 
   const displayEmployees = searchQuery.trim() ? searchResults : latestEmployees;
   const isShowingSearchResults = searchQuery.trim().length > 0;
+
+  const sectionedEmployees = useMemo(() => {
+    if (!displayEmployees.length) return [];
+
+    if (isShowingSearchResults) {
+      return [
+        {
+          title: "Results",
+          data: displayEmployees,
+        },
+      ];
+    }
+
+    const sortedEmployees = [...displayEmployees].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+
+    const grouped = sortedEmployees.reduce((acc, employee) => {
+      const firstLetter = employee.name.charAt(0).toUpperCase();
+      if (!acc[firstLetter]) {
+        acc[firstLetter] = [];
+      }
+      acc[firstLetter].push(employee);
+      return acc;
+    }, {} as Record<string, Employee[]>);
+
+    return Object.keys(grouped)
+      .sort()
+      .map((letter) => ({
+        title: letter,
+        data: grouped[letter],
+      }));
+  }, [displayEmployees, isShowingSearchResults]);
 
   useEffect(() => {
     const initializeData = async () => {
@@ -100,24 +134,6 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
     }
   };
 
-  const handleDeleteEmployeeWithConfirmation = async (employee: Employee) => {
-    Alert.alert(
-      "Delete Employee",
-      `Are you sure you want to delete ${employee.name}?`,
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => handleDeleteEmployee(employee),
-        },
-      ]
-    );
-  };
-
   const handleCloseDetailModal = () => {
     setIsDetailModalVisible(false);
 
@@ -133,6 +149,18 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
       onDelete={handleDeleteEmployee}
     />
   );
+
+  const renderSectionHeader = ({ section }: { section: { title: string } }) => {
+    if (isShowingSearchResults) {
+      return null;
+    }
+
+    return (
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionHeaderText}>{section.title}</Text>
+      </View>
+    );
+  };
 
   const renderEmptyState = () => {
     if (isShowingSearchResults) {
@@ -217,14 +245,16 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
         </View>
       )}
 
-      <FlatList
-        data={displayEmployees}
+      <SectionList
+        sections={sectionedEmployees}
         renderItem={renderEmployeeItem}
+        renderSectionHeader={renderSectionHeader}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={renderEmptyState}
         showsVerticalScrollIndicator={false}
         scrollEnabled={false}
         style={styles.list}
+        stickySectionHeadersEnabled={true}
       />
 
       {selectedEmployee && (
@@ -284,7 +314,8 @@ const createStyles = (colors: any) =>
     searchHeader: {
       paddingHorizontal: 16,
       paddingVertical: 8,
-      backgroundColor: colors.surface,
+      backgroundColor:
+        colors.background === "#121212" ? colors.surface : colors.background,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
       marginBottom: 8,
@@ -325,6 +356,19 @@ const createStyles = (colors: any) =>
       color: "white",
       fontWeight: "600",
       fontSize: 16,
+    },
+    sectionHeader: {
+      backgroundColor: colors.background,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      marginTop: 8,
+    },
+    sectionHeaderText: {
+      fontSize: 14,
+      fontWeight: "700",
+      color: colors.accent,
+      textTransform: "uppercase",
+      letterSpacing: 1,
     },
   });
 
