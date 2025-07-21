@@ -90,7 +90,9 @@ export default function MainScreen() {
         )}
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
+          <Text
+            style={[styles.sectionTitle, isSearching && { marginBottom: 12 }]}
+          >
             {isSearching ? "Search Results" : "New Employees (Latest 10)"}
           </Text>
         </View>
@@ -116,7 +118,7 @@ const createStyles = (colors: any) =>
       paddingHorizontal: 16,
     },
     section: {
-      marginBottom: 24,
+      marginBottom: 12,
     },
     sectionTitle: {
       fontSize: 15,
