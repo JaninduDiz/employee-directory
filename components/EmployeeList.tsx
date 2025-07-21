@@ -130,7 +130,7 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
     <EmployeeItem
       employee={item}
       onPress={handleEmployeePress}
-      onDelete={handleDeleteEmployeeWithConfirmation}
+      onDelete={handleDeleteEmployee}
     />
   );
 
