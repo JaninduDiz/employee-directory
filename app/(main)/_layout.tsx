@@ -54,6 +54,18 @@ export default function MainLayout() {
             colors.accent === "#000000" ? "#ffffff" : colors.accent,
         }}
       />
+      <Stack.Screen
+        name="edit-employee"
+        options={{
+          presentation: "modal",
+          title: "Edit Employee",
+          headerStyle: {
+            backgroundColor: colors.secondary,
+          },
+          headerTintColor:
+            colors.accent === "#000000" ? "#ffffff" : colors.accent,
+        }}
+      />
     </Stack>
   );
 }

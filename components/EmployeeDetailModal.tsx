@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import { Employee } from "@/types";
 import { useThemeColors } from "@/hooks/useTheme";
+import { router } from "expo-router";
+import Feather from "@expo/vector-icons/Feather";
 
 interface EmployeeDetailModalProps {
   visible: boolean;
@@ -49,6 +51,11 @@ const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
         },
       ]
     );
+  };
+
+  const handleEdit = () => {
+    onClose();
+    router.push(`/(main)/edit-employee?id=${employee.id}`);
   };
 
   const formatCreatedDate = (dateString: string) => {
@@ -96,9 +103,18 @@ const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
             <Text style={styles.employeeId}>{employee.employeeId}</Text>
           </View>
 
-          <View style={styles.detailsSection}>
+          <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Personal Information</Text>
+            <TouchableOpacity
+              onPress={handleEdit}
+              style={styles.editButton}
+              activeOpacity={0.7}
+            >
+              <Feather name="edit" size={20} color={colors.accent} />
+            </TouchableOpacity>
+          </View>
 
+          <View style={styles.detailsSection}>
             <View style={styles.detailItem}>
               <Text style={styles.detailLabel}>Full Name</Text>
               <Text style={styles.detailValue}>{employee.name}</Text>
@@ -144,7 +160,7 @@ const createStyles = (colors: any) =>
       justifyContent: "space-between",
       paddingHorizontal: 20,
       paddingVertical: 16,
-      backgroundColor: colors.cardBackground,
+      backgroundColor: colors.secondary,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -153,13 +169,38 @@ const createStyles = (colors: any) =>
     },
     closeButtonText: {
       fontSize: 16,
-      color: colors.secondary,
+      color: colors.textSecondary,
       fontWeight: "600",
     },
     headerTitle: {
       fontSize: 18,
       fontWeight: "600",
       color: colors.text,
+    },
+    headerActions: {
+      flexDirection: "row",
+      gap: 8,
+    },
+    editButton: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: colors.surface,
+      justifyContent: "center",
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    editButtonText: {
+      fontSize: 16,
+      color: colors.accent,
+      fontWeight: "600",
     },
     deleteButton: {
       padding: 8,
@@ -203,6 +244,13 @@ const createStyles = (colors: any) =>
       color: colors.textSecondary,
       fontWeight: "500",
     },
+    sectionHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 8,
+      paddingHorizontal: 4,
+    },
     detailsSection: {
       backgroundColor: colors.primary,
       borderRadius: 16,
@@ -220,7 +268,7 @@ const createStyles = (colors: any) =>
       fontSize: 20,
       fontWeight: "600",
       color: colors.text,
-      marginBottom: 20,
+      flex: 1,
     },
     detailItem: {
       marginBottom: 16,
