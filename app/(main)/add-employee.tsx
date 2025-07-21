@@ -1,39 +1,337 @@
-import { StatusBar } from "expo-status-bar";
-import { Platform, StyleSheet } from "react-native";
-
-import EditScreenInfo from "@/components/EditScreenInfo";
-import { Text, View } from "@/components/Themed";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { router } from "expo-router";
+import { useThemeColors } from "../../hooks/useTheme";
+import { useEmployeeStore } from "../../store/employeeStore";
+import { NewEmployee } from "../../types";
+import DatePicker from "../../components/DatePicker";
+import {
+  EmployeeFormData,
+  ValidationError,
+  validateEmployeeForm,
+  calculateAge,
+  generateEmployeeId,
+} from "../../utils/validation";
 
 export default function AddEmployee() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Modal</Text>
-      <View
-        style={styles.separator}
-        lightColor="#eee"
-        darkColor="rgba(255,255,255,0.1)"
-      />
-      <EditScreenInfo path="app/modal.tsx" />
+  const [formData, setFormData] = useState<EmployeeFormData>({
+    name: "",
+    age: "",
+    dateOfBirth: "",
+    employeeId: "",
+  });
+  const [errors, setErrors] = useState<ValidationError[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-      {/* Use a light status bar on iOS to account for the black space above the modal */}
-      <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
-    </View>
+  const colors = useThemeColors();
+  const styles = createStyles(colors);
+  const { addEmployee } = useEmployeeStore();
+
+  const getFieldError = (fieldName: string): string | undefined => {
+    const error = errors.find((err) => err.field === fieldName);
+    return error?.message;
+  };
+
+  const clearFieldError = (fieldName: string) => {
+    setErrors((prev) => prev.filter((err) => err.field !== fieldName));
+  };
+
+  const handleInputChange = (field: keyof EmployeeFormData, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+    // Clear field error when user starts typing
+    clearFieldError(field);
+  };
+
+  const handleDateOfBirthChange = (dateString: string) => {
+    const calculatedAge = calculateAge(new Date(dateString));
+
+    setFormData((prev) => ({
+      ...prev,
+      dateOfBirth: dateString,
+      age: calculatedAge.toString(),
+    }));
+
+    // Clear date-related errors
+    clearFieldError("dateOfBirth");
+    clearFieldError("age");
+  };
+
+  const handleSave = async () => {
+    // Validate form data
+    const validationErrors = validateEmployeeForm(formData);
+
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      // Show the first error in an alert
+      Alert.alert("Validation Error", validationErrors[0].message);
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const newEmployee: NewEmployee = {
+        name: formData.name.trim(),
+        age: Number(formData.age),
+        dateOfBirth: formData.dateOfBirth.trim(),
+        employeeId: formData.employeeId.trim() || generateEmployeeId(),
+      };
+
+      await addEmployee(newEmployee);
+
+      Alert.alert("Success", "Employee added successfully!", [
+        {
+          text: "OK",
+          onPress: () => router.back(),
+        },
+      ]);
+    } catch (error) {
+      Alert.alert("Error", "Failed to add employee. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    router.back();
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <SafeAreaView style={styles.container}>
+        <ScrollView style={styles.content}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Add New Employee</Text>
+            <Text style={styles.subtitle}>
+              Fill in the employee details below
+            </Text>
+          </View>
+
+          <View style={styles.form}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Full Name *</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  getFieldError("name") && styles.inputError,
+                ]}
+                value={formData.name}
+                onChangeText={(value) => handleInputChange("name", value)}
+                placeholder="Enter full name"
+                placeholderTextColor={colors.textSecondary}
+                autoCapitalize="words"
+              />
+              {getFieldError("name") && (
+                <Text style={styles.errorText}>{getFieldError("name")}</Text>
+              )}
+            </View>
+
+            <DatePicker
+              value={formData.dateOfBirth}
+              onDateChange={handleDateOfBirthChange}
+              label="Date of Birth"
+              placeholder="Select date of birth"
+              helperText="Tap to select date of birth"
+              hasError={!!getFieldError("dateOfBirth")}
+              errorText={getFieldError("dateOfBirth")}
+              required
+            />
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Age</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.disabledInput,
+                  getFieldError("age") && styles.inputError,
+                ]}
+                value={formData.age ? `${formData.age} years old` : ""}
+                placeholder="Will be calculated from date of birth"
+                placeholderTextColor={colors.textSecondary}
+                editable={false}
+              />
+              <Text style={styles.helperText}>
+                Age is automatically calculated from date of birth
+              </Text>
+              {getFieldError("age") && (
+                <Text style={styles.errorText}>{getFieldError("age")}</Text>
+              )}
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Employee ID</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.employeeId}
+                onChangeText={(value) => handleInputChange("employeeId", value)}
+                placeholder="Auto-generated if left empty"
+                placeholderTextColor={colors.textSecondary}
+                autoCapitalize="characters"
+              />
+              <Text style={styles.helperText}>
+                Leave empty to auto-generate
+              </Text>
+            </View>
+          </View>
+        </ScrollView>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.button, styles.cancelButton]}
+            onPress={handleCancel}
+            disabled={isLoading}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.button,
+              styles.saveButton,
+              isLoading && styles.disabledButton,
+            ]}
+            onPress={handleSave}
+            disabled={isLoading}
+          >
+            <Text style={styles.saveButtonText}>
+              {isLoading ? "Saving..." : "Save Employee"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
-  },
-});
+const createStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      flex: 1,
+      padding: 20,
+    },
+    header: {
+      marginBottom: 32,
+      alignItems: "center",
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: "700",
+      color: colors.text,
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: "center",
+    },
+    form: {
+      backgroundColor: colors.cardBackground,
+      borderRadius: 16,
+      padding: 24,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 3.84,
+      elevation: 5,
+    },
+    inputGroup: {
+      marginBottom: 24,
+    },
+    label: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.text,
+      marginBottom: 8,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 12,
+      padding: 16,
+      fontSize: 16,
+      backgroundColor: colors.background,
+      color: colors.text,
+    },
+    inputError: {
+      borderColor: colors.error,
+      backgroundColor: colors.errorBackground,
+    },
+    disabledInput: {
+      backgroundColor: colors.cardBackground,
+      color: colors.textSecondary,
+    },
+    helperText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginTop: 4,
+      fontStyle: "italic",
+    },
+    errorText: {
+      fontSize: 14,
+      color: colors.error,
+      marginTop: 4,
+      fontWeight: "500",
+    },
+    buttonContainer: {
+      flexDirection: "row",
+      padding: 20,
+      paddingTop: 16,
+      gap: 16,
+      backgroundColor: colors.background,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    button: {
+      flex: 1,
+      borderRadius: 12,
+      padding: 16,
+      alignItems: "center",
+      minHeight: 52,
+      justifyContent: "center",
+    },
+    cancelButton: {
+      backgroundColor: colors.cardBackground,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    saveButton: {
+      backgroundColor: colors.primary,
+    },
+    disabledButton: {
+      opacity: 0.6,
+    },
+    cancelButtonText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.text,
+    },
+    saveButtonText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: "white",
+    },
+  });
