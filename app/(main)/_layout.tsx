@@ -46,12 +46,17 @@ export default function MainLayout() {
         name="add-employee"
         options={{
           presentation: "modal",
-          title: "Add Employee",
+          title: "Add New Employee",
           headerStyle: {
             backgroundColor: colors.secondary,
           },
           headerTintColor:
             colors.accent === "#000000" ? "#ffffff" : colors.accent,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 18,
+          },
+          headerLeft: () => null,
         }}
       />
       <Stack.Screen
@@ -64,6 +69,11 @@ export default function MainLayout() {
           },
           headerTintColor:
             colors.accent === "#000000" ? "#ffffff" : colors.accent,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 18,
+          },
+          headerLeft: () => null,
         }}
       />
     </Stack>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useLayoutEffect } from "react";
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { useThemeColors } from "../../hooks/useTheme";
 import { useEmployeeStore } from "../../store/employeeStore";
 import DatePicker from "../../components/DatePicker";
@@ -36,6 +36,7 @@ export default function AddEmployee() {
   const colors = useThemeColors();
   const styles = createStyles(colors);
   const { addEmployee } = useEmployeeStore();
+  const navigation = useNavigation();
 
   const getFieldError = (fieldName: string): string | undefined => {
     const error = errors.find((err) => err.field === fieldName);
@@ -104,6 +105,34 @@ export default function AddEmployee() {
     router.back();
   };
 
+  // Set up header buttons
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={handleCancel}
+          style={styles.headerButton}
+          disabled={isLoading}
+        >
+          <Text style={[styles.headerButtonText, { color: colors.accent }]}>
+            Cancel
+          </Text>
+        </TouchableOpacity>
+      ),
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={handleSave}
+          style={[styles.headerButton, isLoading && styles.disabledButton]}
+          disabled={isLoading}
+        >
+          <Text style={[styles.headerButtonText, { color: colors.accent }]}>
+            {isLoading ? "Saving..." : "Save"}
+          </Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, colors, isLoading, formData]);
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -116,13 +145,6 @@ export default function AddEmployee() {
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
-            <Text style={styles.title}>Add New Employee</Text>
-            <Text style={styles.subtitle}>
-              Fill in the employee details below
-            </Text>
-          </View>
-
           <View style={styles.form}>
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Full Name *</Text>
@@ -184,33 +206,12 @@ export default function AddEmployee() {
                 placeholderTextColor={colors.textSecondary}
                 autoCapitalize="characters"
               />
+              <Text style={styles.helperText}>
+                Must start with 'EMP_' or leave empty for auto-generation
+              </Text>
             </View>
           </View>
         </ScrollView>
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.button, styles.cancelButton]}
-            onPress={handleCancel}
-            disabled={isLoading}
-          >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.button,
-              styles.saveButton,
-              isLoading && styles.disabledButton,
-            ]}
-            onPress={handleSave}
-            disabled={isLoading}
-          >
-            <Text style={styles.saveButtonText}>
-              {isLoading ? "Saving..." : "Save Employee"}
-            </Text>
-          </TouchableOpacity>
-        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -230,22 +231,6 @@ const createStyles = (colors: any) =>
     },
     contentContainer: {
       padding: 20,
-      paddingBottom: 100,
-    },
-    header: {
-      marginBottom: 32,
-      alignItems: "center",
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: "700",
-      color: colors.text,
-      marginBottom: 8,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      textAlign: "center",
     },
     form: {
       backgroundColor: colors.cardBackground,
@@ -346,5 +331,15 @@ const createStyles = (colors: any) =>
       fontSize: 16,
       fontWeight: "600",
       color: "white",
+    },
+    headerButton: {
+      padding: 8,
+      minWidth: 60,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerButtonText: {
+      fontSize: 16,
+      fontWeight: "600",
     },
   });

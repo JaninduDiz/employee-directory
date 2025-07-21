@@ -79,12 +79,13 @@ const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
     >
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Employee Details</Text>
           <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
             <Text style={styles.deleteButtonText}>Delete</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Employee Details</Text>
+
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
 

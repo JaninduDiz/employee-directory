@@ -76,15 +76,24 @@ const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Employee ID</Text>
+        <Text style={styles.label}>Employee ID *</Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            getFieldError("employeeId") && styles.inputError,
+          ]}
           value={formData.employeeId}
           onChangeText={(value) => onInputChange("employeeId", value)}
-          placeholder="Employee ID"
+          placeholder="EMP_12345"
           placeholderTextColor={colors.textSecondary}
           autoCapitalize="characters"
         />
+        <Text style={styles.helperText}>
+          Employee ID must start with 'EMP_' followed by letters/numbers
+        </Text>
+        {getFieldError("employeeId") && (
+          <Text style={styles.errorText}>{getFieldError("employeeId")}</Text>
+        )}
       </View>
     </View>
   );

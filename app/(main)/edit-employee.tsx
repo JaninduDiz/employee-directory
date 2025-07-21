@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useThemeColors } from "../../hooks/useTheme";
 import { useEmployeeStore } from "../../store/employeeStore";
 import EditEmployeeForm from "../../components/EditEmployeeForm";
@@ -34,36 +34,63 @@ export default function EditEmployee() {
   });
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingEmployee, setIsLoadingEmployee] = useState(true);
   const [employee, setEmployee] = useState<Employee | null>(null);
 
   const colors = useThemeColors();
   const styles = createStyles(colors);
+  const navigation = useNavigation();
   const { updateEmployee, latestEmployees, searchResults } = useEmployeeStore();
 
   useEffect(() => {
-    const findEmployee = () => {
-      const allEmployees = [...latestEmployees, ...searchResults];
-      const foundEmployee = allEmployees.find((emp) => emp.id === employeeId);
-
-      if (foundEmployee) {
-        setEmployee(foundEmployee);
-
-        setFormData({
-          name: foundEmployee.name,
-          age: foundEmployee.age.toString(),
-          dateOfBirth: foundEmployee.dateOfBirth,
-          employeeId: foundEmployee.employeeId,
-        });
-      } else {
-        Alert.alert("Error", "Employee not found", [
+    const findEmployee = async () => {
+      if (!employeeId) {
+        Alert.alert("Error", "No employee ID provided", [
           { text: "OK", onPress: () => router.back() },
         ]);
+        return;
+      }
+
+      setIsLoadingEmployee(true);
+
+      try {
+        const allEmployees = [...latestEmployees, ...searchResults];
+        let foundEmployee = allEmployees.find((emp) => emp.id === employeeId);
+
+        if (!foundEmployee) {
+          const { EmployeeService } = await import(
+            "../../services/employeeService"
+          );
+          const allStoredEmployees = await EmployeeService.getAllEmployees();
+          foundEmployee = allStoredEmployees.find(
+            (emp) => emp.id === employeeId
+          );
+        }
+
+        if (foundEmployee) {
+          setEmployee(foundEmployee);
+          setFormData({
+            name: foundEmployee.name,
+            age: foundEmployee.age.toString(),
+            dateOfBirth: foundEmployee.dateOfBirth,
+            employeeId: foundEmployee.employeeId,
+          });
+        } else {
+          Alert.alert("Error", "Employee not found", [
+            { text: "OK", onPress: () => router.back() },
+          ]);
+        }
+      } catch (error) {
+        console.error("Error finding employee:", error);
+        Alert.alert("Error", "Failed to load employee data", [
+          { text: "OK", onPress: () => router.back() },
+        ]);
+      } finally {
+        setIsLoadingEmployee(false);
       }
     };
 
-    if (employeeId) {
-      findEmployee();
-    }
+    findEmployee();
   }, [employeeId, latestEmployees, searchResults]);
 
   const getFieldError = (fieldName: string): string | undefined => {
@@ -104,9 +131,30 @@ export default function EditEmployee() {
 
     if (validationErrors.length > 0) {
       setErrors(validationErrors);
-
       Alert.alert("Validation Error", validationErrors[0].message);
       return;
+    }
+
+    // Check for duplicate employee ID (if changed)
+    if (formData.employeeId.trim() !== employee.employeeId) {
+      try {
+        const { EmployeeService } = await import(
+          "../../services/employeeService"
+        );
+        const existingEmployee = await EmployeeService.getEmployeeById(
+          formData.employeeId.trim()
+        );
+
+        if (existingEmployee && existingEmployee.id !== employee.id) {
+          setErrors([
+            { field: "employeeId", message: "This Employee ID already exists" },
+          ]);
+          Alert.alert("Validation Error", "This Employee ID already exists");
+          return;
+        }
+      } catch (error) {
+        console.error("Error checking duplicate employee ID:", error);
+      }
     }
 
     setIsLoading(true);
@@ -129,6 +177,7 @@ export default function EditEmployee() {
         },
       ]);
     } catch (error) {
+      console.error("Error updating employee:", error);
       Alert.alert("Error", "Failed to update employee. Please try again.");
     } finally {
       setIsLoading(false);
@@ -136,14 +185,66 @@ export default function EditEmployee() {
   };
 
   const handleCancel = () => {
-    router.back();
+    if (
+      employee &&
+      (formData.name !== employee.name ||
+        formData.age !== employee.age.toString() ||
+        formData.dateOfBirth !== employee.dateOfBirth ||
+        formData.employeeId !== employee.employeeId)
+    ) {
+      Alert.alert(
+        "Discard Changes",
+        "You have unsaved changes. Are you sure you want to discard them?",
+        [
+          { text: "Keep Editing", style: "cancel" },
+          {
+            text: "Discard",
+            style: "destructive",
+            onPress: () => router.back(),
+          },
+        ]
+      );
+    } else {
+      router.back();
+    }
   };
 
-  if (!employee) {
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+          style={styles.headerButton}
+          onPress={handleCancel}
+          disabled={isLoading}
+        >
+          <Text style={[styles.headerButtonText, { color: colors.accent }]}>
+            Cancel
+          </Text>
+        </TouchableOpacity>
+      ),
+      headerRight: () => (
+        <TouchableOpacity
+          style={[styles.headerButton, isLoading && styles.disabledButton]}
+          onPress={handleSave}
+          disabled={isLoading}
+        >
+          <Text style={[styles.headerButtonText, { color: colors.accent }]}>
+            {isLoading ? "Updating..." : "Update"}
+          </Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, colors, isLoading, handleCancel, handleSave]);
+
+  if (!employee || isLoadingEmployee) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading employee data...</Text>
+          <Text style={styles.loadingText}>
+            {isLoadingEmployee
+              ? "Loading employee data..."
+              : "Employee not found"}
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -162,7 +263,6 @@ export default function EditEmployee() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Text style={styles.title}>Edit Employee</Text>
             <Text style={styles.subtitle}>
               Update {employee.name}'s information
             </Text>
@@ -176,30 +276,6 @@ export default function EditEmployee() {
             getFieldError={getFieldError}
           />
         </ScrollView>
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.button, styles.cancelButton]}
-            onPress={handleCancel}
-            disabled={isLoading}
-          >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.button,
-              styles.saveButton,
-              isLoading && styles.disabledButton,
-            ]}
-            onPress={handleSave}
-            disabled={isLoading}
-          >
-            <Text style={styles.saveButtonText}>
-              {isLoading ? "Updating..." : "Update Employee"}
-            </Text>
-          </TouchableOpacity>
-        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -219,7 +295,6 @@ const createStyles = (colors: any) =>
     },
     contentContainer: {
       padding: 20,
-      paddingBottom: 100,
     },
     loadingContainer: {
       flex: 1,
@@ -234,12 +309,6 @@ const createStyles = (colors: any) =>
     header: {
       marginBottom: 32,
       alignItems: "center",
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: "700",
-      color: colors.text,
-      marginBottom: 8,
     },
     subtitle: {
       fontSize: 16,
@@ -295,5 +364,15 @@ const createStyles = (colors: any) =>
       fontSize: 16,
       fontWeight: "600",
       color: "white",
+    },
+    headerButton: {
+      padding: 8,
+      minWidth: 60,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerButtonText: {
+      fontSize: 16,
+      fontWeight: "600",
     },
   });
