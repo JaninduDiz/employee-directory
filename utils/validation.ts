@@ -52,11 +52,20 @@ export const generateEmployeeId = (): string => {
 export const formDataToNewEmployee = (
   formData: EmployeeFormData
 ): NewEmployee => {
+  let employeeId = formData.employeeId.trim();
+
+  // Ensure EMP prefix is present
+  if (employeeId && !employeeId.startsWith("EMP_")) {
+    employeeId = "EMP_" + employeeId;
+  } else if (!employeeId) {
+    employeeId = generateEmployeeId();
+  }
+
   return {
     name: formData.name.trim(),
     age: Number(formData.age),
     dateOfBirth: formData.dateOfBirth.trim(),
-    employeeId: formData.employeeId.trim() || generateEmployeeId(),
+    employeeId: employeeId,
   };
 };
 
@@ -106,6 +115,40 @@ export const validateEmployeeForm = (
         field: "age",
         message: "Employee age must be between 18 and 65",
       });
+    }
+  }
+
+  // Employee ID validation
+  if (!formData.employeeId?.trim()) {
+    errors.push({
+      field: "employeeId",
+      message: "Employee ID is required",
+    });
+  } else {
+    const employeeId = formData.employeeId.trim();
+
+    // Check if it starts with EMP prefix
+    if (!employeeId.startsWith("EMP_")) {
+      errors.push({
+        field: "employeeId",
+        message: "Employee ID must start with 'EMP_'",
+      });
+    } else if (employeeId.length < 7) {
+      // EMP_ + at least 3 characters
+      errors.push({
+        field: "employeeId",
+        message: "Employee ID must be at least 7 characters (EMP_XXX)",
+      });
+    } else {
+      // Check if the part after EMP_ contains only numbers/letters
+      const suffix = employeeId.substring(4); // Remove "EMP_"
+      if (!/^[A-Z0-9]+$/i.test(suffix)) {
+        errors.push({
+          field: "employeeId",
+          message:
+            "Employee ID can only contain letters and numbers after 'EMP_'",
+        });
+      }
     }
   }
 
