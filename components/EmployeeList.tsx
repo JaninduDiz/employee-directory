@@ -287,6 +287,7 @@ const createStyles = (colors: any) =>
       backgroundColor: colors.surface,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
+      marginBottom: 8,
     },
     searchResultsText: {
       fontSize: 14,
