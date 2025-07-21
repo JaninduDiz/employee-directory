@@ -5,22 +5,30 @@ import { EMPLOYEE_COUNT } from "../constants";
 
 interface EmployeeStore {
   latestEmployees: Employee[];
+  searchResults: Employee[];
   isLoading: boolean;
+  isSearching: boolean;
   error: string | null;
+  searchQuery: string;
 
   initializeEmployees: () => Promise<void>;
   addEmployee: (employee: NewEmployee) => Promise<void>;
   updateEmployee: (employee: Employee) => Promise<void>;
   deleteEmployee: (employeeId: string) => Promise<void>;
   getLatestEmployees: (count?: number) => Promise<Employee[]>;
+  searchEmployees: (query: string, limit?: number) => Promise<void>;
+  clearSearch: () => void;
   clearError: () => void;
   clearEmployees: () => void;
 }
 
 export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
   latestEmployees: [],
+  searchResults: [],
   isLoading: false,
+  isSearching: false,
   error: null,
+  searchQuery: "",
 
   initializeEmployees: async () => {
     set({ isLoading: true, error: null });
@@ -43,6 +51,14 @@ export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
       );
 
       set({ latestEmployees: freshLatestEmployees, error: null });
+
+      const { searchQuery } = get();
+      if (searchQuery.trim()) {
+        const searchResults = await EmployeeService.searchEmployees(
+          searchQuery
+        );
+        set({ searchResults });
+      }
     } catch (error) {
       set({ error: "Failed to add employee" });
       throw error;
@@ -59,6 +75,14 @@ export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
       );
 
       set({ latestEmployees: freshLatestEmployees, error: null });
+
+      const { searchQuery } = get();
+      if (searchQuery.trim()) {
+        const searchResults = await EmployeeService.searchEmployees(
+          searchQuery
+        );
+        set({ searchResults });
+      }
     } catch (error) {
       set({ error: "Failed to update employee" });
       throw error;
@@ -78,6 +102,14 @@ export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
         freshLatestEmployees.length
       );
       set({ latestEmployees: freshLatestEmployees, error: null });
+
+      const { searchQuery } = get();
+      if (searchQuery.trim()) {
+        const searchResults = await EmployeeService.searchEmployees(
+          searchQuery
+        );
+        set({ searchResults });
+      }
     } catch (error) {
       set({ error: "Failed to delete employee" });
       throw error;
@@ -96,10 +128,40 @@ export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
     }
   },
 
+  searchEmployees: async (query: string, limit?: number) => {
+    try {
+      set({ isSearching: true, error: null, searchQuery: query });
+
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      const searchResults = await EmployeeService.searchEmployees(query, limit);
+
+      set({
+        searchResults,
+        isSearching: false,
+        searchQuery: query,
+      });
+    } catch (error) {
+      set({
+        error: "Failed to search employees",
+        isSearching: false,
+        searchResults: [],
+      });
+    }
+  },
+
+  clearSearch: () => {
+    set({
+      searchResults: [],
+      searchQuery: "",
+      isSearching: false,
+    });
+  },
+
   clearError: () => set({ error: null }),
 
   clearEmployees: async () => {
-    set({ latestEmployees: [], error: null });
+    set({ latestEmployees: [], searchResults: [], error: null });
     try {
       await EmployeeService.clearEmployees();
     } catch (error) {

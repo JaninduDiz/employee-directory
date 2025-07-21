@@ -152,4 +152,71 @@ export class EmployeeService {
       console.error("Failed to reset employees:", error);
     }
   }
+
+  static async searchEmployees(
+    query: string,
+    limit?: number
+  ): Promise<Employee[]> {
+    try {
+      if (!query.trim()) {
+        return this.getLatestEmployees(limit);
+      }
+
+      const allEmployees = await this.getAllEmployees();
+      const searchTerm = query.toLowerCase().trim();
+
+      console.log(
+        `Searching for "${searchTerm}" in ${allEmployees.length} employees`
+      );
+
+      // Search in multiple fields: name, employeeId, age
+      const filteredEmployees = allEmployees.filter((employee) => {
+        return (
+          employee.name.toLowerCase().includes(searchTerm) ||
+          employee.employeeId.toLowerCase().includes(searchTerm) ||
+          employee.age.toString().includes(searchTerm)
+        );
+      });
+
+      console.log(`Found ${filteredEmployees.length} matching employees`);
+
+      const sortedResults = filteredEmployees.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+
+      return limit ? sortedResults.slice(0, limit) : sortedResults;
+    } catch (error) {
+      console.error("Failed to search employees:", error);
+      return [];
+    }
+  }
+
+  static async getEmployeesByName(name: string): Promise<Employee[]> {
+    try {
+      const allEmployees = await this.getAllEmployees();
+      const searchTerm = name.toLowerCase().trim();
+
+      return allEmployees.filter((employee) =>
+        employee.name.toLowerCase().includes(searchTerm)
+      );
+    } catch (error) {
+      console.error("Failed to search employees by name:", error);
+      return [];
+    }
+  }
+
+  static async getEmployeeById(employeeId: string): Promise<Employee | null> {
+    try {
+      const allEmployees = await this.getAllEmployees();
+      return (
+        allEmployees.find(
+          (employee) =>
+            employee.employeeId.toLowerCase() === employeeId.toLowerCase()
+        ) || null
+      );
+    } catch (error) {
+      console.error("Failed to get employee by ID:", error);
+      return null;
+    }
+  }
 }
