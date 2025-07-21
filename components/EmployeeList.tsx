@@ -56,6 +56,10 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
     initializeData();
   }, [initializeEmployees, getLatestEmployees]);
 
+  useEffect(() => {
+    console.log("Latest employees initialized:", latestEmployees.length);
+  }, [latestEmployees.length]);
+
   useImperativeHandle(
     ref,
     () => ({
@@ -77,6 +81,22 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
   };
 
   const handleDeleteEmployee = async (employee: Employee) => {
+    try {
+      if (selectedEmployee?.id === employee.id) {
+        setIsDetailModalVisible(false);
+
+        setTimeout(() => {
+          setSelectedEmployee(null);
+        }, 300);
+      }
+
+      await deleteEmployee(employee.id);
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete employee");
+    }
+  };
+
+  const handleDeleteEmployeeWithConfirmation = async (employee: Employee) => {
     Alert.alert(
       "Delete Employee",
       `Are you sure you want to delete ${employee.name}?`,
@@ -88,13 +108,7 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
         {
           text: "Delete",
           style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteEmployee(employee.id);
-            } catch (error) {
-              Alert.alert("Error", "Failed to delete employee");
-            }
-          },
+          onPress: () => handleDeleteEmployee(employee),
         },
       ]
     );
@@ -102,14 +116,17 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
 
   const handleCloseDetailModal = () => {
     setIsDetailModalVisible(false);
-    setSelectedEmployee(null);
+
+    setTimeout(() => {
+      setSelectedEmployee(null);
+    }, 300);
   };
 
   const renderEmployeeItem = ({ item }: { item: Employee }) => (
     <EmployeeItem
       employee={item}
       onPress={handleEmployeePress}
-      onDelete={handleDeleteEmployee}
+      onDelete={handleDeleteEmployeeWithConfirmation}
     />
   );
 
@@ -169,7 +186,6 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
           onClose={handleCloseDetailModal}
           onDelete={() => {
             handleDeleteEmployee(selectedEmployee);
-            handleCloseDetailModal();
           }}
         />
       )}
