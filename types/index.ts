@@ -12,9 +12,9 @@ export interface Employee {
   createdAt: string;
 }
 
-export interface EmployeeFormData {
+export interface NewEmployee {
   name: string;
-  age: string;
+  age: number;
   dateOfBirth: string;
   employeeId: string;
 }

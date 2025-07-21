@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Employee, NewEmployee } from "@/types";
 import { INITIAL_EMPLOYEES } from "@/constants/EmployeeList";
+import { EMPLOYEE_COUNT } from "@/constants";
 
 const STORAGE_KEY = "@employees";
 
@@ -8,12 +9,21 @@ export class EmployeeService {
   static async initializeEmployees(): Promise<void> {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      console.log(
+        "Initializing employees, current storage:",
+        stored ? "exists" : "empty"
+      );
+
       if (!stored) {
         // First time - store initial data
+        console.log(`Storing ${INITIAL_EMPLOYEES.length} initial employees`);
         await AsyncStorage.setItem(
           STORAGE_KEY,
           JSON.stringify(INITIAL_EMPLOYEES)
         );
+      } else {
+        const employees = JSON.parse(stored);
+        console.log(`Found ${employees.length} employees in storage`);
       }
     } catch (error) {
       console.error("Failed to initialize employees:", error);
@@ -35,18 +45,20 @@ export class EmployeeService {
     }
   }
 
-  static async getLatestEmployees(count: number = 10): Promise<Employee[]> {
+  static async getLatestEmployees(
+    count: number = EMPLOYEE_COUNT
+  ): Promise<Employee[]> {
     try {
       const employees = await this.getAllEmployees();
+      console.log(
+        `Total employees in storage: ${employees.length}, Requesting: ${count}`
+      );
 
-      // Get latest employees by creation date, then sort alphabetically by name
+      // Simply return the first N employees sorted alphabetically by name
+      // If there are fewer employees than requested, just return what we have
       return employees
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        .slice(0, count)
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .slice(0, count);
     } catch (error) {
       console.error("Failed to get latest employees:", error);
       return [];
@@ -120,8 +132,24 @@ export class EmployeeService {
         deletedCount = employees.length;
       }
       await AsyncStorage.removeItem(STORAGE_KEY);
+      console.log(`Cleared ${deletedCount} employees from storage`);
     } catch (error) {
       console.error("Failed to clear employee storage:", error);
+    }
+  }
+
+  static async resetEmployees(): Promise<void> {
+    try {
+      console.log("Resetting employees to initial data...");
+      await AsyncStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(INITIAL_EMPLOYEES)
+      );
+      console.log(
+        `Reset complete: ${INITIAL_EMPLOYEES.length} employees stored`
+      );
+    } catch (error) {
+      console.error("Failed to reset employees:", error);
     }
   }
 }

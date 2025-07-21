@@ -18,6 +18,7 @@ import EmployeeDetailModal from "./EmployeeDetailModal";
 import { useThemeColors } from "@/hooks/useTheme";
 import EmployeeItem from "./EmployeeItem";
 import { useEmployeeStore } from "@/store/employeeStore";
+import { EMPLOYEE_COUNT } from "@/constants";
 
 export interface EmployeeListRef {
   refreshEmployees: () => Promise<void>;
@@ -47,18 +48,14 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
     const initializeData = async () => {
       try {
         await initializeEmployees();
-        await getLatestEmployees(10);
+        await getLatestEmployees(EMPLOYEE_COUNT);
       } catch (error) {
         console.error("Failed to initialize employees:", error);
       }
     };
 
     initializeData();
-  }, [initializeEmployees, getLatestEmployees]);
-
-  useEffect(() => {
-    console.log("Latest employees initialized:", latestEmployees.length);
-  }, [latestEmployees.length]);
+  }, [initializeEmployees, getLatestEmployees, EMPLOYEE_COUNT]);
 
   useImperativeHandle(
     ref,
@@ -66,13 +63,13 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
       refreshEmployees: async () => {
         try {
           await initializeEmployees();
-          await getLatestEmployees(latestEmployees?.length || 10);
+          await getLatestEmployees(EMPLOYEE_COUNT);
         } catch (error) {
           console.error("Failed to refresh employees:", error);
         }
       },
     }),
-    [initializeEmployees, getLatestEmployees, latestEmployees]
+    [initializeEmployees, getLatestEmployees, EMPLOYEE_COUNT]
   );
 
   const handleEmployeePress = (employee: Employee) => {
@@ -156,9 +153,10 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
         <Text style={styles.errorText}>Error: {error}</Text>
         <TouchableOpacity
           style={styles.retryButton}
-          onPress={() => {
+          onPress={async () => {
             clearError();
-            initializeEmployees();
+            await initializeEmployees();
+            await getLatestEmployees(EMPLOYEE_COUNT);
           }}
         >
           <Text style={styles.retryButtonText}>Retry</Text>

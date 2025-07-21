@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { Employee, NewEmployee } from "../types";
 import { EmployeeService } from "../services/employeeService";
+import { EMPLOYEE_COUNT } from "../constants";
 
 interface EmployeeStore {
   latestEmployees: Employee[];
@@ -35,22 +36,13 @@ export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
   addEmployee: async (newEmployee: NewEmployee) => {
     try {
       const allEmployees = await EmployeeService.getAllEmployees();
-      const updatedEmployees = await EmployeeService.addEmployee(
-        newEmployee,
-        allEmployees
+      await EmployeeService.addEmployee(newEmployee, allEmployees);
+
+      const freshLatestEmployees = await EmployeeService.getLatestEmployees(
+        EMPLOYEE_COUNT
       );
 
-      const { latestEmployees } = get();
-      const count = latestEmployees.length || 10;
-      const latestFromUpdated = updatedEmployees
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        .slice(0, count)
-        .sort((a, b) => a.name.localeCompare(b.name));
-
-      set({ latestEmployees: latestFromUpdated, error: null });
+      set({ latestEmployees: freshLatestEmployees, error: null });
     } catch (error) {
       set({ error: "Failed to add employee" });
       throw error;
@@ -60,22 +52,13 @@ export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
   updateEmployee: async (updatedEmployee: Employee) => {
     try {
       const allEmployees = await EmployeeService.getAllEmployees();
-      const updatedEmployees = await EmployeeService.updateEmployee(
-        updatedEmployee,
-        allEmployees
+      await EmployeeService.updateEmployee(updatedEmployee, allEmployees);
+
+      const freshLatestEmployees = await EmployeeService.getLatestEmployees(
+        EMPLOYEE_COUNT
       );
 
-      const { latestEmployees } = get();
-      const count = latestEmployees.length || 10;
-      const latestFromUpdated = updatedEmployees
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        .slice(0, count)
-        .sort((a, b) => a.name.localeCompare(b.name));
-
-      set({ latestEmployees: latestFromUpdated, error: null });
+      set({ latestEmployees: freshLatestEmployees, error: null });
     } catch (error) {
       set({ error: "Failed to update employee" });
       throw error;
@@ -85,29 +68,23 @@ export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
   deleteEmployee: async (employeeId: string) => {
     try {
       const allEmployees = await EmployeeService.getAllEmployees();
-      const updatedEmployees = await EmployeeService.deleteEmployee(
-        employeeId,
-        allEmployees
+      await EmployeeService.deleteEmployee(employeeId, allEmployees);
+
+      const freshLatestEmployees = await EmployeeService.getLatestEmployees(
+        EMPLOYEE_COUNT
       );
-
-      const { latestEmployees } = get();
-      const count = latestEmployees.length || 10;
-      const latestFromUpdated = updatedEmployees
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        .slice(0, count)
-        .sort((a, b) => a.name.localeCompare(b.name));
-
-      set({ latestEmployees: latestFromUpdated, error: null });
+      console.log(
+        "Employee deleted, fetching latest employees:",
+        freshLatestEmployees.length
+      );
+      set({ latestEmployees: freshLatestEmployees, error: null });
     } catch (error) {
       set({ error: "Failed to delete employee" });
       throw error;
     }
   },
 
-  getLatestEmployees: async (count = 10) => {
+  getLatestEmployees: async (count = EMPLOYEE_COUNT) => {
     try {
       // Fetch latest employees directly from storage, sorted alphabetically
       const latestEmployees = await EmployeeService.getLatestEmployees(count);
