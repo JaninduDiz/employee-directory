@@ -118,30 +118,22 @@ export const validateEmployeeForm = (
     }
   }
 
-  // Employee ID validation
-  if (!formData.employeeId?.trim()) {
-    errors.push({
-      field: "employeeId",
-      message: "Employee ID is required",
-    });
-  } else {
+  // Employee ID validation - allow empty for auto-generation
+  if (formData.employeeId?.trim()) {
     const employeeId = formData.employeeId.trim();
 
-    // Check if it starts with EMP prefix
     if (!employeeId.startsWith("EMP_")) {
       errors.push({
         field: "employeeId",
         message: "Employee ID must start with 'EMP_'",
       });
     } else if (employeeId.length < 7) {
-      // EMP_ + at least 3 characters
       errors.push({
         field: "employeeId",
         message: "Employee ID must be at least 7 characters (EMP_XXX)",
       });
     } else {
-      // Check if the part after EMP_ contains only numbers/letters
-      const suffix = employeeId.substring(4); // Remove "EMP_"
+      const suffix = employeeId.substring(4);
       if (!/^[A-Z0-9]+$/i.test(suffix)) {
         errors.push({
           field: "employeeId",
