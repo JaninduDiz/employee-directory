@@ -15,6 +15,7 @@ import { router, useNavigation } from "expo-router";
 import { useThemeColors } from "../../hooks/useTheme";
 import { useEmployeeStore } from "../../store/employeeStore";
 import DatePicker from "../../components/DatePicker";
+import CommonButton from "../../components/CommonButton";
 import {
   EmployeeFormData,
   ValidationError,
@@ -201,15 +202,15 @@ export default function AddEmployee() {
           </View>
         </ScrollView>
 
-        <TouchableOpacity
-          style={[styles.floatingButton, isLoading && styles.disabledButton]}
-          onPress={handleSave}
-          disabled={isLoading}
-        >
-          <Text style={styles.floatingButtonText}>
-            {isLoading ? "Saving..." : "Save"}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <CommonButton
+            title={isLoading ? "Saving..." : "Save"}
+            onPress={handleSave}
+            disabled={isLoading}
+            loading={isLoading}
+            style={styles.saveButton}
+          />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -282,80 +283,14 @@ const createStyles = (colors: any) =>
     },
     buttonContainer: {
       position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      flexDirection: "row",
-      padding: 20,
-      paddingBottom: 4, // Safe area for iOS
-      gap: 16,
-      backgroundColor: colors.background,
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: -2,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 3.84,
-      elevation: 5,
-    },
-    button: {
-      flex: 1,
-      borderRadius: 12,
-      padding: 16,
-      alignItems: "center",
-      minHeight: 52,
-      justifyContent: "center",
-    },
-    cancelButton: {
-      backgroundColor: colors.cardBackground,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    saveButton: {
-      backgroundColor: colors.primary,
-    },
-    disabledButton: {
-      opacity: 0.6,
-    },
-    cancelButtonText: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: colors.text,
-    },
-    saveButtonText: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: "white",
-    },
-    floatingButton: {
-      position: "absolute",
-      bottom: 50,
+      bottom: 80,
       left: "5%",
       right: "5%",
       width: "90%",
-      backgroundColor: colors.accent,
-      borderRadius: 28,
-      paddingHorizontal: 24,
-      paddingVertical: 14,
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.3,
-      shadowRadius: 6,
-      elevation: 8,
-      alignItems: "center",
-      justifyContent: "center",
       alignSelf: "center",
     },
-    floatingButtonText: {
-      color: "white",
-      fontSize: 16,
-      fontWeight: "600",
+    saveButton: {
+      width: "100%",
     },
     headerButton: {
       padding: 8,

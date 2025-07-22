@@ -12,6 +12,7 @@ import { Employee } from "@/types";
 import { useThemeColors } from "@/hooks/useTheme";
 import { router } from "expo-router";
 import Feather from "@expo/vector-icons/Feather";
+import CommonButton from "./CommonButton";
 
 interface EmployeeDetailModalProps {
   visible: boolean;
@@ -79,11 +80,8 @@ const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
     >
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
-            <Text style={styles.deleteButtonText}>Delete</Text>
-          </TouchableOpacity>
+          <View style={styles.headerLeft} />
           <Text style={styles.headerTitle}>Employee Details</Text>
-
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
@@ -143,6 +141,14 @@ const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
               </Text>
             </View>
           </View>
+
+          <View style={styles.buttonContainer}>
+            <CommonButton
+              title="Delete Employee"
+              variant="danger"
+              onPress={handleDelete}
+            />
+          </View>
         </ScrollView>
       </View>
     </Modal>
@@ -172,14 +178,15 @@ const createStyles = (colors: any) =>
       color: colors.textSecondary,
       fontWeight: "600",
     },
+    headerLeft: {
+      width: 60,
+    },
     headerTitle: {
       fontSize: 18,
       fontWeight: "600",
       color: colors.text,
-    },
-    headerActions: {
-      flexDirection: "row",
-      gap: 8,
+      flex: 1,
+      textAlign: "center",
     },
     editButton: {
       width: 36,
@@ -202,21 +209,14 @@ const createStyles = (colors: any) =>
       color: colors.accent,
       fontWeight: "600",
     },
-    deleteButton: {
-      padding: 8,
-    },
-    deleteButtonText: {
-      fontSize: 16,
-      color: colors.error,
-      fontWeight: "600",
-    },
+
     content: {
       flex: 1,
       padding: 20,
     },
     profileSection: {
       alignItems: "center",
-      marginBottom: 32,
+      marginBottom: 20,
       paddingVertical: 20,
     },
     avatar: {
@@ -288,6 +288,11 @@ const createStyles = (colors: any) =>
       fontSize: 16,
       color: colors.text,
       fontWeight: "500",
+    },
+    buttonContainer: {
+      paddingHorizontal: 20,
+      paddingVertical: 15,
+      paddingBottom: 100,
     },
   });
 

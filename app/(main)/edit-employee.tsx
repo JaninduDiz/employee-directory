@@ -14,6 +14,7 @@ import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useThemeColors } from "../../hooks/useTheme";
 import { useEmployeeStore } from "../../store/employeeStore";
 import EditEmployeeForm from "../../components/EditEmployeeForm";
+import CommonButton from "../../components/CommonButton";
 import {
   EmployeeFormData,
   ValidationError,
@@ -135,7 +136,6 @@ export default function EditEmployee() {
       return;
     }
 
-    // Check for duplicate employee ID (if changed)
     if (formData.employeeId.trim() !== employee.employeeId) {
       try {
         const { EmployeeService } = await import(
@@ -266,15 +266,14 @@ export default function EditEmployee() {
           />
         </ScrollView>
 
-        <TouchableOpacity
-          style={[styles.floatingButton, isLoading && styles.disabledButton]}
-          onPress={handleSave}
-          disabled={isLoading}
-        >
-          <Text style={styles.floatingButtonText}>
-            {isLoading ? "Updating..." : "Update"}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <CommonButton
+            title={isLoading ? "Updating..." : "Update Employee"}
+            variant="primary"
+            onPress={handleSave}
+            disabled={isLoading}
+          />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -314,35 +313,12 @@ const createStyles = (colors: any) =>
       color: colors.textSecondary,
       textAlign: "center",
     },
-    floatingButton: {
+    buttonContainer: {
       position: "absolute",
-      bottom: 80,
-      left: "5%",
-      right: "5%",
-      width: "90%",
-      backgroundColor: colors.accent,
-      borderRadius: 28,
-      paddingHorizontal: 24,
-      paddingVertical: 14,
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.3,
-      shadowRadius: 6,
-      elevation: 8,
-      alignItems: "center",
-      justifyContent: "center",
-      alignSelf: "center",
-    },
-    floatingButtonText: {
-      color: "white",
-      fontSize: 16,
-      fontWeight: "600",
-    },
-    disabledButton: {
-      opacity: 0.6,
+      bottom: 10,
+      left: 20,
+      right: 20,
+      paddingVertical: 10,
     },
     headerButton: {
       padding: 8,
