@@ -97,10 +97,6 @@ export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
       const freshLatestEmployees = await EmployeeService.getLatestEmployees(
         EMPLOYEE_COUNT
       );
-      console.log(
-        "Employee deleted, fetching latest employees:",
-        freshLatestEmployees.length
-      );
       set({ latestEmployees: freshLatestEmployees, error: null });
 
       const { searchQuery } = get();

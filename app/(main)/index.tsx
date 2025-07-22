@@ -40,10 +40,7 @@ export default function MainScreen() {
     setRefreshing(true);
 
     try {
-      console.log("Starting refresh...");
-
       if (searchQuery.trim()) {
-        console.log("Clearing search during refresh...");
         clearSearch();
         setIsSearching(false);
       }
@@ -55,8 +52,6 @@ export default function MainScreen() {
       if (employeeListRef.current?.refreshEmployees) {
         await employeeListRef.current.refreshEmployees();
       }
-
-      console.log("Refresh completed!");
     } catch (error) {
       console.error("Refresh error:", error);
     } finally {

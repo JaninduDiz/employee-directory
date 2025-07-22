@@ -9,25 +9,15 @@ export class EmployeeService {
   static async initializeEmployees(): Promise<void> {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      console.log(
-        "Initializing employees, current storage:",
-        stored ? "exists" : "empty"
-      );
 
       if (!stored) {
-        // First time - store initial data
-        console.log(`Storing ${INITIAL_EMPLOYEES.length} initial employees`);
         await AsyncStorage.setItem(
           STORAGE_KEY,
           JSON.stringify(INITIAL_EMPLOYEES)
         );
-      } else {
-        const employees = JSON.parse(stored);
-        console.log(`Found ${employees.length} employees in storage`);
       }
     } catch (error) {
       console.error("Failed to initialize employees:", error);
-      // Even if there's an error, try to store initial data
       await AsyncStorage.setItem(
         STORAGE_KEY,
         JSON.stringify(INITIAL_EMPLOYEES)
@@ -50,12 +40,7 @@ export class EmployeeService {
   ): Promise<Employee[]> {
     try {
       const employees = await this.getAllEmployees();
-      console.log(
-        `Total employees in storage: ${employees.length}, Requesting: ${count}`
-      );
 
-      // Simply return the first N employees sorted alphabetically by name
-      // If there are fewer employees than requested, just return what we have
       return employees
         .sort((a, b) => a.name.localeCompare(b.name))
         .slice(0, count);
@@ -125,14 +110,7 @@ export class EmployeeService {
 
   static async clearEmployees(): Promise<void> {
     try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      let deletedCount = 0;
-      if (stored) {
-        const employees: Employee[] = JSON.parse(stored);
-        deletedCount = employees.length;
-      }
       await AsyncStorage.removeItem(STORAGE_KEY);
-      console.log(`Cleared ${deletedCount} employees from storage`);
     } catch (error) {
       console.error("Failed to clear employee storage:", error);
     }
@@ -140,13 +118,9 @@ export class EmployeeService {
 
   static async resetEmployees(): Promise<void> {
     try {
-      console.log("Resetting employees to initial data...");
       await AsyncStorage.setItem(
         STORAGE_KEY,
         JSON.stringify(INITIAL_EMPLOYEES)
-      );
-      console.log(
-        `Reset complete: ${INITIAL_EMPLOYEES.length} employees stored`
       );
     } catch (error) {
       console.error("Failed to reset employees:", error);
@@ -165,11 +139,6 @@ export class EmployeeService {
       const allEmployees = await this.getAllEmployees();
       const searchTerm = query.toLowerCase().trim();
 
-      console.log(
-        `Searching for "${searchTerm}" in ${allEmployees.length} employees`
-      );
-
-      // Search in multiple fields: name, employeeId, age
       const filteredEmployees = allEmployees.filter((employee) => {
         return (
           employee.name.toLowerCase().includes(searchTerm) ||
@@ -177,8 +146,6 @@ export class EmployeeService {
           employee.age.toString().includes(searchTerm)
         );
       });
-
-      console.log(`Found ${filteredEmployees.length} matching employees`);
 
       const sortedResults = filteredEmployees.sort((a, b) =>
         a.name.localeCompare(b.name)
