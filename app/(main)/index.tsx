@@ -64,7 +64,6 @@ export default function MainScreen() {
     }
   }, [searchQuery, clearSearch]);
 
-  // Check authentication after all hooks are called
   if (!isAuthenticated) {
     return <Redirect href="/(auth)" />;
   }
@@ -75,6 +74,7 @@ export default function MainScreen() {
 
       <ScrollView
         style={styles.content}
+        contentContainerStyle={styles.contentContainer}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -117,6 +117,9 @@ const createStyles = (colors: any) =>
     content: {
       flex: 1,
       paddingHorizontal: 16,
+    },
+    contentContainer: {
+      paddingBottom: 100,
     },
     section: {
       marginBottom: 12,

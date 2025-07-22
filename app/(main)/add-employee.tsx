@@ -105,10 +105,9 @@ export default function AddEmployee() {
     router.back();
   };
 
-  // Set up header buttons
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (
+      headerRight: () => (
         <TouchableOpacity
           onPress={handleCancel}
           style={styles.headerButton}
@@ -119,19 +118,8 @@ export default function AddEmployee() {
           </Text>
         </TouchableOpacity>
       ),
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={handleSave}
-          style={[styles.headerButton, isLoading && styles.disabledButton]}
-          disabled={isLoading}
-        >
-          <Text style={[styles.headerButtonText, { color: colors.accent }]}>
-            {isLoading ? "Saving..." : "Save"}
-          </Text>
-        </TouchableOpacity>
-      ),
     });
-  }, [navigation, colors, isLoading, formData]);
+  }, [navigation, colors, isLoading]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -212,6 +200,16 @@ export default function AddEmployee() {
             </View>
           </View>
         </ScrollView>
+
+        <TouchableOpacity
+          style={[styles.floatingButton, isLoading && styles.disabledButton]}
+          onPress={handleSave}
+          disabled={isLoading}
+        >
+          <Text style={styles.floatingButtonText}>
+            {isLoading ? "Saving..." : "Save"}
+          </Text>
+        </TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -331,6 +329,33 @@ const createStyles = (colors: any) =>
       fontSize: 16,
       fontWeight: "600",
       color: "white",
+    },
+    floatingButton: {
+      position: "absolute",
+      bottom: 50,
+      left: "5%",
+      right: "5%",
+      width: "90%",
+      backgroundColor: colors.accent,
+      borderRadius: 28,
+      paddingHorizontal: 24,
+      paddingVertical: 14,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.3,
+      shadowRadius: 6,
+      elevation: 8,
+      alignItems: "center",
+      justifyContent: "center",
+      alignSelf: "center",
+    },
+    floatingButtonText: {
+      color: "white",
+      fontSize: 16,
+      fontWeight: "600",
     },
     headerButton: {
       padding: 8,

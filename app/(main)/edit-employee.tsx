@@ -211,7 +211,7 @@ export default function EditEmployee() {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (
+      headerRight: () => (
         <TouchableOpacity
           style={styles.headerButton}
           onPress={handleCancel}
@@ -222,19 +222,8 @@ export default function EditEmployee() {
           </Text>
         </TouchableOpacity>
       ),
-      headerRight: () => (
-        <TouchableOpacity
-          style={[styles.headerButton, isLoading && styles.disabledButton]}
-          onPress={handleSave}
-          disabled={isLoading}
-        >
-          <Text style={[styles.headerButtonText, { color: colors.accent }]}>
-            {isLoading ? "Updating..." : "Update"}
-          </Text>
-        </TouchableOpacity>
-      ),
     });
-  }, [navigation, colors, isLoading, handleCancel, handleSave]);
+  }, [navigation, colors, isLoading, handleCancel]);
 
   if (!employee || isLoadingEmployee) {
     return (
@@ -276,6 +265,16 @@ export default function EditEmployee() {
             getFieldError={getFieldError}
           />
         </ScrollView>
+
+        <TouchableOpacity
+          style={[styles.floatingButton, isLoading && styles.disabledButton]}
+          onPress={handleSave}
+          disabled={isLoading}
+        >
+          <Text style={styles.floatingButtonText}>
+            {isLoading ? "Updating..." : "Update"}
+          </Text>
+        </TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -315,55 +314,35 @@ const createStyles = (colors: any) =>
       color: colors.textSecondary,
       textAlign: "center",
     },
-    buttonContainer: {
+    floatingButton: {
       position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      flexDirection: "row",
-      padding: 20,
-      paddingBottom: 4,
-      gap: 16,
-      backgroundColor: colors.background,
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
+      bottom: 80,
+      left: "5%",
+      right: "5%",
+      width: "90%",
+      backgroundColor: colors.accent,
+      borderRadius: 28,
+      paddingHorizontal: 24,
+      paddingVertical: 14,
       shadowColor: "#000",
       shadowOffset: {
         width: 0,
-        height: -2,
+        height: 4,
       },
-      shadowOpacity: 0.1,
-      shadowRadius: 3.84,
-      elevation: 5,
-    },
-    button: {
-      flex: 1,
-      borderRadius: 12,
-      padding: 16,
+      shadowOpacity: 0.3,
+      shadowRadius: 6,
+      elevation: 8,
       alignItems: "center",
-      minHeight: 52,
       justifyContent: "center",
+      alignSelf: "center",
     },
-    cancelButton: {
-      backgroundColor: colors.cardBackground,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    saveButton: {
-      backgroundColor: colors.primary,
+    floatingButtonText: {
+      color: "white",
+      fontSize: 16,
+      fontWeight: "600",
     },
     disabledButton: {
       opacity: 0.6,
-    },
-    cancelButtonText: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: colors.text,
-    },
-    saveButtonText: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: "white",
     },
     headerButton: {
       padding: 8,
