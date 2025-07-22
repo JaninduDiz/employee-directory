@@ -22,8 +22,8 @@ A React Native employee management app built with Expo. Manage employees with CR
 
 ## 📱 Screenshots
 
-<img width="1602" height="1078" alt="2" src="https://github.com/user-attachments/assets/9a752d83-db33-4a37-b7cc-d2f5e82c0380" />
 <img width="1598" height="1080" alt="1" src="https://github.com/user-attachments/assets/c19e3b14-ae41-443b-9ad0-7771e307ef7b" />
+<img width="1602" height="1078" alt="2" src="https://github.com/user-attachments/assets/9a752d83-db33-4a37-b7cc-d2f5e82c0380" />
 
 
 ## Quick Start
