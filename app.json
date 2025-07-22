@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "employee-directory",
+    "name": "Employee Directory",
     "slug": "employee-directory",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -28,10 +28,7 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-router",
-      "expo-secure-store"
-    ],
+    "plugins": ["expo-router", "expo-secure-store"],
     "experiments": {
       "typedRoutes": true
     }
