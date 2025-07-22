@@ -8,7 +8,7 @@ import {
   ScrollView,
   RefreshControl,
 } from "react-native";
-import { Redirect, router } from "expo-router";
+import { Redirect, router, useFocusEffect } from "expo-router";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useEmployeeStore } from "@/store/employeeStore";
 import { useThemeColors } from "@/hooks/useTheme";
@@ -18,7 +18,7 @@ import SearchBox from "@/components/SearchBox";
 
 export default function MainScreen() {
   const { isAuthenticated } = useAuthStore();
-  const { searchQuery, clearSearch } = useEmployeeStore();
+  const { searchQuery, clearSearch, refreshEmployees } = useEmployeeStore();
 
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -45,19 +45,35 @@ export default function MainScreen() {
         setIsSearching(false);
       }
 
+      const promises = [];
+
       if (quoteCardRef.current?.refreshQuote) {
-        await quoteCardRef.current.refreshQuote();
+        promises.push(quoteCardRef.current.refreshQuote());
       }
 
+      promises.push(refreshEmployees());
+
       if (employeeListRef.current?.refreshEmployees) {
-        await employeeListRef.current.refreshEmployees();
+        promises.push(employeeListRef.current.refreshEmployees());
       }
+
+      await Promise.all(promises);
     } catch (error) {
       console.error("Refresh error:", error);
     } finally {
       setRefreshing(false);
     }
-  }, [searchQuery, clearSearch]);
+  }, [refreshEmployees, searchQuery, clearSearch]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshEmployees();
+
+      if (employeeListRef.current?.refreshEmployees) {
+        employeeListRef.current.refreshEmployees();
+      }
+    }, [refreshEmployees])
+  );
 
   if (!isAuthenticated) {
     return <Redirect href="/(auth)" />;
@@ -89,7 +105,12 @@ export default function MainScreen() {
           <Text
             style={[styles.sectionTitle, isSearching && { marginBottom: 12 }]}
           >
-            {isSearching ? "Search Results" : "New Employees (Latest 10)"}
+            {isSearching
+              ? "Search Results"
+              : `New Employees (Latest ${Math.min(
+                  10,
+                  useEmployeeStore.getState().latestEmployees.length
+                )})`}
           </Text>
         </View>
 

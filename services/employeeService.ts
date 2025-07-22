@@ -41,8 +41,18 @@ export class EmployeeService {
     try {
       const employees = await this.getAllEmployees();
 
+      // Sort by creation date (newest first), then by name as fallback
       return employees
-        .sort((a, b) => a.name.localeCompare(b.name))
+        .sort((a, b) => {
+          // First, sort by createdAt (newest first)
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          if (dateB !== dateA) {
+            return dateB - dateA; // Descending order (newest first)
+          }
+          // If dates are equal, sort by name alphabetically as fallback
+          return a.name.localeCompare(b.name);
+        })
         .slice(0, count);
     } catch (error) {
       console.error("Failed to get latest employees:", error);

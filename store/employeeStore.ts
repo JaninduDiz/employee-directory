@@ -16,6 +16,7 @@ interface EmployeeStore {
   updateEmployee: (employee: Employee) => Promise<void>;
   deleteEmployee: (employeeId: string) => Promise<void>;
   getLatestEmployees: (count?: number) => Promise<Employee[]>;
+  refreshEmployees: () => Promise<void>;
   searchEmployees: (query: string, limit?: number) => Promise<void>;
   clearSearch: () => void;
   clearError: () => void;
@@ -114,13 +115,24 @@ export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
 
   getLatestEmployees: async (count = EMPLOYEE_COUNT) => {
     try {
-      // Fetch latest employees directly from storage, sorted alphabetically
+      // Fetch latest employees directly from storage, sorted by creation date (newest first)
       const latestEmployees = await EmployeeService.getLatestEmployees(count);
       set({ latestEmployees });
       return latestEmployees;
     } catch (error) {
       set({ error: "Failed to get latest employees" });
       return [];
+    }
+  },
+
+  refreshEmployees: async () => {
+    try {
+      const latestEmployees = await EmployeeService.getLatestEmployees(
+        EMPLOYEE_COUNT
+      );
+      set({ latestEmployees, error: null });
+    } catch (error) {
+      set({ error: "Failed to refresh employees" });
     }
   },
 
