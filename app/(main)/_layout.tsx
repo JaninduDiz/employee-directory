@@ -21,10 +21,8 @@ export default function MainLayout() {
         name="index"
         options={{
           title: "Employee Directory",
-          headerStyle: {
-            backgroundColor: colors.secondary,
-          },
-          headerTintColor: colors.accent,
+
+          headerTintColor: colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
           },
@@ -47,11 +45,7 @@ export default function MainLayout() {
         options={{
           presentation: "modal",
           title: "Add New Employee",
-          headerStyle: {
-            backgroundColor: colors.secondary,
-          },
-          headerTintColor:
-            colors.accent === "#000000" ? "#ffffff" : colors.accent,
+          headerTintColor: colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 18,
@@ -64,11 +58,7 @@ export default function MainLayout() {
         options={{
           presentation: "modal",
           title: "Edit Employee",
-          headerStyle: {
-            backgroundColor: colors.secondary,
-          },
-          headerTintColor:
-            colors.accent === "#000000" ? "#ffffff" : colors.accent,
+          headerTintColor: colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 18,
