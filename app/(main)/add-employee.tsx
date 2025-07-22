@@ -230,6 +230,7 @@ const createStyles = (colors: any) =>
     },
     contentContainer: {
       padding: 20,
+      paddingBottom: 20,
     },
     form: {
       backgroundColor: colors.cardBackground,
@@ -282,12 +283,11 @@ const createStyles = (colors: any) =>
       fontWeight: "500",
     },
     buttonContainer: {
-      position: "absolute",
-      bottom: 80,
-      left: "5%",
-      right: "5%",
-      width: "90%",
-      alignSelf: "center",
+      paddingHorizontal: 20,
+      paddingVertical: 15,
+      backgroundColor: colors.background,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
     },
     saveButton: {
       width: "100%",

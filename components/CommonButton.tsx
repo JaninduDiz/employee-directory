@@ -74,7 +74,7 @@ const CommonButton: React.FC<CommonButtonProps> = ({
 const createStyles = (colors: any) =>
   StyleSheet.create({
     baseButton: {
-      borderRadius: 28,
+      borderRadius: 12,
       paddingHorizontal: 32,
       paddingVertical: 16,
       minHeight: 56,

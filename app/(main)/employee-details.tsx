@@ -294,7 +294,6 @@ const createStyles = (colors: any) =>
       fontWeight: "500",
     },
     buttonContainer: {
-      paddingHorizontal: 20,
       paddingVertical: 15,
       paddingBottom: 30,
       marginBottom: 20,

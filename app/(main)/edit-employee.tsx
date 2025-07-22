@@ -293,6 +293,7 @@ const createStyles = (colors: any) =>
     },
     contentContainer: {
       padding: 20,
+      paddingBottom: 100,
     },
     loadingContainer: {
       flex: 1,
@@ -314,11 +315,11 @@ const createStyles = (colors: any) =>
       textAlign: "center",
     },
     buttonContainer: {
-      position: "absolute",
-      bottom: 10,
-      left: 20,
-      right: 20,
+      paddingHorizontal: 20,
       paddingVertical: 10,
+      backgroundColor: colors.background,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
     },
     headerButton: {
       padding: 8,
