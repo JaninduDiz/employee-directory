@@ -10,7 +10,7 @@ interface SearchBoxProps {
 
 const SearchBox: React.FC<SearchBoxProps> = ({ onSearchChange }) => {
   const colors = useThemeColors();
-  const styles = createStyles(colors);
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
   const { searchEmployees, clearSearch, searchQuery } = useEmployeeStore();
   const [localQuery, setLocalQuery] = useState(searchQuery || "");
 
