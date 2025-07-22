@@ -15,8 +15,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { Employee } from "@/types";
-import EmployeeDetailModal from "./EmployeeDetailModal";
 import { useThemeColors } from "@/hooks/useTheme";
 import EmployeeItem from "./EmployeeItem";
 import { useEmployeeStore } from "@/store/employeeStore";
@@ -44,13 +44,14 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
     clearEmployees,
   } = useEmployeeStore();
 
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
-    null
-  );
-  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-
   const displayEmployees = searchQuery.trim() ? searchResults : latestEmployees;
   const isShowingSearchResults = searchQuery.trim().length > 0;
+
+  useImperativeHandle(ref, () => ({
+    refreshEmployees: async () => {
+      await getLatestEmployees(EMPLOYEE_COUNT);
+    },
+  }));
 
   const sectionedEmployees = useMemo(() => {
     if (!displayEmployees.length) return [];
@@ -114,32 +115,16 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
   );
 
   const handleEmployeePress = (employee: Employee) => {
-    setSelectedEmployee(employee);
-    setIsDetailModalVisible(true);
+    router.push(`/(main)/employee-details?id=${employee.id}`);
   };
 
   const handleDeleteEmployee = async (employee: Employee) => {
     try {
-      if (selectedEmployee?.id === employee.id) {
-        setIsDetailModalVisible(false);
-
-        setTimeout(() => {
-          setSelectedEmployee(null);
-        }, 300);
-      }
-
       await deleteEmployee(employee.id);
     } catch (error) {
-      Alert.alert("Error", "Failed to delete employee");
+      console.error("Error deleting employee:", error);
+      Alert.alert("Error", "Failed to delete employee. Please try again.");
     }
-  };
-
-  const handleCloseDetailModal = () => {
-    setIsDetailModalVisible(false);
-
-    setTimeout(() => {
-      setSelectedEmployee(null);
-    }, 300);
   };
 
   const renderEmployeeItem = ({ item }: { item: Employee }) => (
@@ -256,17 +241,6 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
         style={styles.list}
         stickySectionHeadersEnabled={true}
       />
-
-      {selectedEmployee && (
-        <EmployeeDetailModal
-          visible={isDetailModalVisible}
-          employee={selectedEmployee}
-          onClose={handleCloseDetailModal}
-          onDelete={() => {
-            handleDeleteEmployee(selectedEmployee);
-          }}
-        />
-      )}
     </View>
   );
 });

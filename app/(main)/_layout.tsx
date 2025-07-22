@@ -66,6 +66,19 @@ export default function MainLayout() {
           headerLeft: () => null,
         }}
       />
+      <Stack.Screen
+        name="employee-details"
+        options={{
+          presentation: "modal",
+          title: "Employee Details",
+          headerTintColor: colors.text,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 18,
+          },
+          headerLeft: () => null,
+        }}
+      />
     </Stack>
   );
 }
