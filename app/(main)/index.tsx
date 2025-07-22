@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -21,7 +21,7 @@ export default function MainScreen() {
   const { searchQuery, clearSearch } = useEmployeeStore();
 
   const colors = useThemeColors();
-  const styles = createStyles(colors);
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const [refreshing, setRefreshing] = useState(false);
   const [isSearching, setIsSearching] = useState(false);

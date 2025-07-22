@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -31,11 +31,11 @@ const EmployeeItem: React.FC<EmployeeItemProps> = ({
   onDelete,
 }) => {
   const colors = useThemeColors();
-  const styles = createStyles(colors);
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const translateX = useSharedValue(0);
   const opacity = useSharedValue(1);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     Alert.alert(
       "Delete Employee",
       `Are you sure you want to delete ${employee.name}?`,
@@ -58,7 +58,7 @@ const EmployeeItem: React.FC<EmployeeItemProps> = ({
         },
       ]
     );
-  };
+  }, [employee, onDelete, translateX, opacity]);
 
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (evt, gestureState) => {
@@ -191,4 +191,18 @@ const createStyles = (colors: any) =>
     },
   });
 
-export default EmployeeItem;
+// Comparison function for React.memo to prevent unnecessary re-renders
+const areEqual = (
+  prevProps: EmployeeItemProps,
+  nextProps: EmployeeItemProps
+) => {
+  return (
+    prevProps.employee.id === nextProps.employee.id &&
+    prevProps.employee.name === nextProps.employee.name &&
+    prevProps.employee.age === nextProps.employee.age &&
+    prevProps.employee.employeeId === nextProps.employee.employeeId &&
+    prevProps.employee.dateOfBirth === nextProps.employee.dateOfBirth
+  );
+};
+
+export default memo(EmployeeItem, areEqual);

@@ -8,6 +8,7 @@ import React, {
   useCallback,
   forwardRef,
   useImperativeHandle,
+  useMemo,
 } from "react";
 import {
   View,
@@ -27,7 +28,7 @@ const QuoteCard = forwardRef<any, QuoteDisplayProps>(
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const colors = useThemeColors();
-    const styles = createStyles(colors);
+    const styles = useMemo(() => createStyles(colors), [colors]);
 
     useEffect(() => {
       loadQuote();

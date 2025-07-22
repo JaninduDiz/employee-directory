@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -18,7 +18,7 @@ import { Employee } from "../../types";
 export default function EmployeeDetailsScreen() {
   const { id } = useLocalSearchParams();
   const colors = useThemeColors();
-  const styles = createStyles(colors);
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const navigation = useNavigation();
   const { latestEmployees, searchResults, searchQuery, deleteEmployee } =
     useEmployeeStore();

@@ -4,6 +4,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useMemo,
+  useCallback,
 } from "react";
 import {
   View,
@@ -28,7 +29,7 @@ export interface EmployeeListRef {
 
 const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
   const colors = useThemeColors();
-  const styles = createStyles(colors);
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const {
     latestEmployees,
@@ -44,8 +45,13 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
     clearEmployees,
   } = useEmployeeStore();
 
-  const displayEmployees = searchQuery.trim() ? searchResults : latestEmployees;
-  const isShowingSearchResults = searchQuery.trim().length > 0;
+  const displayEmployees = useMemo(() => {
+    return searchQuery.trim() ? searchResults : latestEmployees;
+  }, [searchQuery, searchResults, latestEmployees]);
+
+  const isShowingSearchResults = useMemo(() => {
+    return searchQuery.trim().length > 0;
+  }, [searchQuery]);
 
   useImperativeHandle(ref, () => ({
     refreshEmployees: async () => {
@@ -97,7 +103,7 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
     };
 
     initializeData();
-  }, [initializeEmployees, getLatestEmployees, EMPLOYEE_COUNT]);
+  }, [initializeEmployees, getLatestEmployees]);
 
   useImperativeHandle(
     ref,
@@ -111,43 +117,52 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
         }
       },
     }),
-    [initializeEmployees, getLatestEmployees, EMPLOYEE_COUNT]
+    [initializeEmployees, getLatestEmployees]
   );
 
-  const handleEmployeePress = (employee: Employee) => {
+  const handleEmployeePress = useCallback((employee: Employee) => {
     router.push(`/(main)/employee-details?id=${employee.id}`);
-  };
+  }, []);
 
-  const handleDeleteEmployee = async (employee: Employee) => {
-    try {
-      await deleteEmployee(employee.id);
-    } catch (error) {
-      console.error("Error deleting employee:", error);
-      Alert.alert("Error", "Failed to delete employee. Please try again.");
-    }
-  };
-
-  const renderEmployeeItem = ({ item }: { item: Employee }) => (
-    <EmployeeItem
-      employee={item}
-      onPress={handleEmployeePress}
-      onDelete={handleDeleteEmployee}
-    />
+  const handleDeleteEmployee = useCallback(
+    async (employee: Employee) => {
+      try {
+        await deleteEmployee(employee.id);
+      } catch (error) {
+        console.error("Error deleting employee:", error);
+        Alert.alert("Error", "Failed to delete employee. Please try again.");
+      }
+    },
+    [deleteEmployee]
   );
 
-  const renderSectionHeader = ({ section }: { section: { title: string } }) => {
-    if (isShowingSearchResults) {
-      return null;
-    }
+  const renderEmployeeItem = useCallback(
+    ({ item }: { item: Employee }) => (
+      <EmployeeItem
+        employee={item}
+        onPress={handleEmployeePress}
+        onDelete={handleDeleteEmployee}
+      />
+    ),
+    [handleEmployeePress, handleDeleteEmployee]
+  );
 
-    return (
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionHeaderText}>{section.title}</Text>
-      </View>
-    );
-  };
+  const renderSectionHeader = useCallback(
+    ({ section }: { section: { title: string } }) => {
+      if (isShowingSearchResults) {
+        return null;
+      }
 
-  const renderEmptyState = () => {
+      return (
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionHeaderText}>{section.title}</Text>
+        </View>
+      );
+    },
+    [isShowingSearchResults, styles]
+  );
+
+  const renderEmptyState = useCallback(() => {
     if (isShowingSearchResults) {
       return (
         <View style={styles.emptyState}>
@@ -179,13 +194,16 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
         </Text>
       </View>
     );
-  };
+  }, [isShowingSearchResults, searchQuery, styles, colors]);
 
-  const renderSearchingState = () => (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color={colors.accent} />
-      <Text style={styles.loadingText}>Searching employees...</Text>
-    </View>
+  const renderSearchingState = useCallback(
+    () => (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.accent} />
+        <Text style={styles.loadingText}>Searching employees...</Text>
+      </View>
+    ),
+    [styles, colors]
   );
 
   if (isLoading) {
@@ -240,6 +258,12 @@ const EmployeeList = forwardRef<EmployeeListRef>((props, ref) => {
         scrollEnabled={false}
         style={styles.list}
         stickySectionHeadersEnabled={true}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={100}
+        initialNumToRender={10}
+        windowSize={10}
+        getItemLayout={undefined}
       />
     </View>
   );

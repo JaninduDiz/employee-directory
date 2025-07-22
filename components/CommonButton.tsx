@@ -28,7 +28,7 @@ const CommonButton: React.FC<CommonButtonProps> = ({
   textStyle,
 }) => {
   const colors = useThemeColors();
-  const styles = createStyles(colors);
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
 
   const getButtonStyle = () => {
     switch (variant) {
