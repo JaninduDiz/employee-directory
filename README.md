@@ -20,6 +20,17 @@ A React Native employee management app built with Expo. Manage employees with CR
 - AsyncStorage (local data)
 - React Native Reanimated (animations)
 
+## 📱 Screenshots
+
+<img width="1206" height="2622" alt="simulator_screenshot_BADF0023-23A1-4837-9E83-270B2B774CCE" src="https://github.com/user-attachments/assets/397ee11a-8c8a-41fe-98c2-e0cdf2f901a9" />
+<img width="1206" height="2622" alt="Simulator Screenshot - iPhone 16 Pro - 2025-07-22 at 10 02 10" src="https://github.com/user-attachments/assets/c5b0eb97-de07-4370-9f61-3aabcb6f8a18" />
+<img width="1206" height="2622" alt="Simulator Screenshot - iPhone 16 Pro - 2025-07-22 at 09 55 27" src="https://github.com/user-attachments/assets/21009885-e7c2-48ab-a722-add7cae7e812" />
+<img width="1206" height="2622" alt="Simulator Screenshot - iPhone 16 Pro - 2025-07-22 at 10 02 10" src="h<img width="1206" height="2622" alt="Simulator Screenshot - iPhone 16 Pro - 2025-07-22 at 10 06 34" src="https://github.com/user-attachments/assets/4b1f9e20-ef81-4a65-87db-821fd00ad69f" />
+ttps://github.com/user-attachments/assets/c55c2584-42a0-4d6f-8ee5-a49439142cb6" />
+<img width="1206" height="2622" alt="Simulator Screenshot - iPhone 16 Pro - 2025-07-22 at 09 55 50" src="https://github.com/user-attachments/assets/4acc9951-b60e-428a-9f59-331557190ab7" />
+<img width="1206" height="2622" alt="Simulator Screenshot - iPhone 16 Pro - 2025-07-22 at 09 55 43" src="https://github.com/user-attachments/assets/0826d415-a8ed-4a4b-8fea-c788345d06b9" />
+
+
 ## Quick Start
 
 ### Prerequisites
