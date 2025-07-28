@@ -95,4 +95,4 @@ The app uses:
 - **TypeScript** for type safety
 - **Custom hooks** for theme and data management
 
-For development, all employee data is stored locally. The app includes sample data generation for testing.
+For development, all employee data is stored locally. 
